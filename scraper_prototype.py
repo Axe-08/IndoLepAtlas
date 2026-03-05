@@ -149,13 +149,13 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
     images_to_download = get_images_from_tab(soup, 'home', 'Adult/Unknown')
     early_images = get_images_from_tab(soup, 'early', 'Early Stage')
     
-    # We mix them to get a few of each for prototype
-    sample_images = images_to_download[:5] + early_images[:5]
+    # Download all available images
+    sample_images = images_to_download + early_images
 
     os.makedirs(output_dir, exist_ok=True)
     metadata_records = []
 
-    logging.info(f"Found {len(images_to_download)} adult & {len(early_images)} early images. Downloading {len(sample_images)} total...")
+    logging.info(f"Found {len(images_to_download)} adult & {len(early_images)} early images. Downloading all {len(sample_images)} images...")
 
     for i, img_data in enumerate(sample_images):
         img_url = img_data['url']

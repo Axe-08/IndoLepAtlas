@@ -22,10 +22,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 BASE_URL = "https://www.ifoundbutterflies.org"
 SPECIES_LIST_URL = "https://www.ifoundbutterflies.org/species-list"
 
-def get_species_links(limit=2):
+def get_species_links(limit=None):
     """
     Scrape the main species list page to get links to individual species pages.
-    Limits to `limit` number of species for testing.
+    Limits to `limit` number of species if specified, else all.
     """
     logging.info(f"Fetching species list from {SPECIES_LIST_URL}")
     
@@ -48,17 +48,11 @@ def get_species_links(limit=2):
 
     species_links = []
     
-    # Let's find links inside the main views container, ignoring header links
-    # Often, species links have italic text `<em>` or are nested in specific divs
-    # Let's just find links that have a capitalized first letter, lowercase second word (Binomial)
-    # Or simply grab links from the main content region
-    
     main_content = soup.find('div', class_='region-content') or soup
     
     for a in main_content.find_all('a', href=True):
         href = a['href']
         # Species links usually look like /Genus-species, eg: /Papilio-machaon
-        # We can check if it starts with a capital letter after the slash
         if href.startswith('/') and len(href) > 2 and href[1].isupper() and '-' in href:
             if not any(ext in href for ext in ['.css', '.js', '.png', '.jpg', '?', 'user', 'about', 'contact']):
                 full_url = urljoin(BASE_URL, href)
@@ -66,14 +60,14 @@ def get_species_links(limit=2):
                 if full_url not in species_links:
                     species_links.append(full_url)
                     
-        if len(species_links) >= limit:
+        if limit and len(species_links) >= limit:
             break
             
     return species_links
 
 def run_crawler_test():
-    logging.info("Starting crawler test...")
-    links = get_species_links(limit=2)
+    logging.info("Starting production crawler...")
+    links = get_species_links(limit=None)
     
     if not links:
         logging.error("Found no species links to test.")
