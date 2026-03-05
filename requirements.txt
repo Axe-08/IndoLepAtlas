@@ -2,3 +2,4 @@ huggingface-hub
 python-dotenv
 requests
 beautifulsoup4
+dataclasses; python_version < '3.7'

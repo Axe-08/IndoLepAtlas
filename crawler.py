@@ -4,6 +4,7 @@ import time
 import logging
 import requests
 import shutil
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from huggingface_hub import HfApi, create_repo
@@ -73,7 +74,7 @@ def run_crawler_test():
         logging.error("Found no species links to test.")
         return
         
-    logging.info(f"Found {len(links)} links to test: {links}")
+    logging.info(f"Found {len(links)} species. Starting scrape loop...")
     
     # Set up a master output directory for the crawler test
     master_dir = "dataset_test_run"
@@ -82,46 +83,107 @@ def run_crawler_test():
     # Set up Hugging Face API
     api = None
     if HF_TOKEN:
-        api = HfApi(token=HF_TOKEN)
+        try:
+            # Login globally so old versions pick it up automatically
+            from huggingface_hub.hf_api import HfFolder
+            HfFolder.save_token(HF_TOKEN)
+        except ImportError:
+            pass
+
+        try:
+            # New huggingface_hub
+            api = HfApi(token=HF_TOKEN)
+        except TypeError:
+            # Legacy huggingface_hub (e.g. v0.4.0 on Python 3.6)
+            api = HfApi()
+
         try:
             create_repo(repo_id=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
             logging.info(f"Targeting dataset repo: {REPO_ID}")
+        except TypeError:
+            try:
+                # Older version might use 'organization' or no token kwarg
+                create_repo(repo_id=REPO_ID, repo_type="dataset", exist_ok=True)
+                logging.info(f"Targeting dataset repo: {REPO_ID}")
+            except Exception as e:
+                logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
+                api = None
         except Exception as e:
             logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
             api = None
     else:
         logging.warning("No HF_TOKEN found. Will scrape locally without cloud sync.")
 
-    for url in links:
+    success_count = 0
+    fail_count = 0
+    images_synced = 0
+    
+    # Progress tracking loop
+    pbar = tqdm(links, desc="Scraping Species", unit="species")
+    for url in pbar:
         # Create a unique batch folder for each species based on its URL slug
         slug = url.rstrip('/').split('/')[-1]
         batch_dir = os.path.join(master_dir, f"batch_{slug}")
         
-        logging.info(f"--- Scraping Species: {slug} ---")
         try:
             # We reuse the robust logic from the prototype
-            scrape_species_page(url, output_dir=batch_dir)
+            success, dl_count = scrape_species_page(url, output_dir=batch_dir)
+            
+            if not success:
+                raise Exception("Scraper prototype returned failure.")
             
             # --- Cloud Sync & Local Clean --
             if api and os.path.exists(batch_dir):
                 logging.info(f"Syncing {batch_dir} to Hugging Face...")
-                # Upload the folder content into a path inside the HF dataset repo
-                api.upload_folder(
-                    repo_id=REPO_ID,
-                    repo_type="dataset",
-                    folder_path=batch_dir,
-                    path_in_repo=f"data/{slug}" # Keep species separate in HF
-                )
-                logging.info(f"Upload successful. Deleting local batch folder {batch_dir}")
+                if hasattr(api, "upload_folder"):
+                    # Modern huggingface_hub method
+                    api.upload_folder(
+                        repo_id=REPO_ID,
+                        repo_type="dataset",
+                        folder_path=batch_dir,
+                        path_in_repo=f"data/{slug}" # Keep species separate in HF
+                    )
+                else:
+                    # Legacy fallback for old huggingface_hub versions (like v0.4.0)
+                    for filename in os.listdir(batch_dir):
+                        filepath = os.path.join(batch_dir, filename)
+                        path_in_repo = f"data/{slug}/{filename}"
+                        try:
+                            # Try modern arg
+                            api.upload_file(
+                                path_or_fileobj=filepath,
+                                path_in_repo=path_in_repo,
+                                repo_id=REPO_ID,
+                                repo_type="dataset",
+                                token=HF_TOKEN
+                            )
+                        except TypeError:
+                            # Try old arg syntax
+                            api.upload_file(
+                                path_or_fileobj=filepath,
+                                path_in_repo=path_in_repo,
+                                repo_id=REPO_ID,
+                                repo_type="dataset"
+                            )
+                logging.debug(f"Upload successful. Deleting local batch folder {batch_dir}")
                 shutil.rmtree(batch_dir)
-                
-            # Respectful rate limiting: wait 3 seconds before hitting the next species page
-            time.sleep(3)
-                
-        except Exception as e:
-            logging.error(f"Error scraping or syncing {url}: {e}")
             
-    logging.info("Crawler test completion.")
+            success_count += 1
+            images_synced += dl_count
+            
+        except Exception as e:
+            fail_count += 1
+            with open("failed_species.log", "a") as f:
+                f.write(f"{url}\n")
+            logging.debug(f"Error scraping or syncing {url}: {e}")
+            
+        # Update progress bar metrics
+        pbar.set_postfix({"Success": success_count, "Fails": fail_count, "Images Synced": images_synced})
+            
+        # Respectful rate limiting: wait 3 seconds before hitting the next species page
+        time.sleep(3)
+            
+    logging.info(f"Crawler completion. Total success: {success_count}, Total fails: {fail_count}, Total images synced: {images_synced}")
 
 if __name__ == '__main__':
     run_crawler_test()

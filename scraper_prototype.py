@@ -109,8 +109,11 @@ def get_images_from_tab(soup, tab_id, life_stage):
     return images
 
 def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
-    """Scrape a single species page, downloading its images and metadata."""
-    logging.info(f"Scraping: {url_or_filepath}")
+    """
+    Scrape a single species page, downloading its images and metadata.
+    Returns: (success: bool, downloaded_count: int)
+    """
+    logging.debug(f"Scraping: {url_or_filepath}")
     
     try:
         if url_or_filepath.startswith("http"):
@@ -131,7 +134,7 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
                 html_content = f.read()
     except Exception as e:
         logging.error(f"Failed to fetch {url_or_filepath} after retries: {e}")
-        return
+        return False, 0
 
     soup = BeautifulSoup(html_content, 'html.parser')
 
@@ -154,8 +157,9 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
 
     os.makedirs(output_dir, exist_ok=True)
     metadata_records = []
+    downloaded_count = 0
 
-    logging.info(f"Found {len(images_to_download)} adult & {len(early_images)} early images. Downloading all {len(sample_images)} images...")
+    logging.debug(f"Found {len(images_to_download)} adult & {len(early_images)} early images. Downloading all {len(sample_images)} images...")
 
     for i, img_data in enumerate(sample_images):
         img_url = img_data['url']
@@ -185,7 +189,8 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
                 for chunk in img_resp.iter_content(1024):
                     f.write(chunk)
             
-            logging.info(f"Downloaded: {filename}")
+            logging.debug(f"Downloaded: {filename}")
+            downloaded_count += 1
             
             record = {
                 "file_name": filename,
@@ -211,8 +216,9 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
         for record in metadata_records:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
             
-    logging.info(f"Wrote {len(metadata_records)} records to {metadata_file}")
-    logging.info(f"Prototype scrape complete. Files ready in '{output_dir}'.")
+    logging.debug(f"Wrote {len(metadata_records)} records to {metadata_file}")
+    logging.debug(f"Prototype scrape complete. Files ready in '{output_dir}'.")
+    return True, downloaded_count
 
 if __name__ == '__main__':
     test_file = "/home/akshit/Projects/IndoLepAtlas/butterflies.html"
