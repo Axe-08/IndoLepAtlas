@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import base64
 import logging
 import requests
 import shutil
@@ -100,6 +101,7 @@ def verify_hf_repo():
 def upload_batch(batch_dir, slug):
     """
     Upload all files in a batch folder to HF in a single commit via the REST API.
+    Uses JSON payload with base64-encoded file content.
     Deletes the local folder after success. Returns file count.
     """
     files_list = [f for f in os.listdir(batch_dir) if not f.startswith('.')]
@@ -110,32 +112,26 @@ def upload_batch(batch_dir, slug):
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     
-    # Build the NDJSON header: line 1 = commit summary, line 2+ = file operations
-    header_lines = [json.dumps({"summary": f"Add {slug} ({len(files_list)} files)"})]
-    
+    operations = []
     for filename in files_list:
         filepath = os.path.join(batch_dir, filename)
-        file_size = os.path.getsize(filepath)
-        path_in_repo = f"data/{slug}/{filename}"
-        header_lines.append(json.dumps({
-            "key": "file",
-            "path": path_in_repo,
-            "size": file_size
-        }))
-    
-    header_content = "\n".join(header_lines)
-    
-    # Build multipart: first part is the header, then each file
-    multipart_files = [("header", (None, header_content, "application/x-ndjson"))]
-    
-    for filename in files_list:
-        filepath = os.path.join(batch_dir, filename)
-        path_in_repo = f"data/{slug}/{filename}"
         with open(filepath, "rb") as f:
             content = f.read()
-        multipart_files.append(("file", (path_in_repo, content, "application/octet-stream")))
+        
+        encoded = base64.b64encode(content).decode("ascii")
+        operations.append({
+            "op": "addOrUpdate",
+            "path": f"data/{slug}/{filename}",
+            "encoding": "base64",
+            "content": encoded,
+        })
     
-    resp = requests.post(commit_url, headers=headers, files=multipart_files, timeout=120)
+    payload = {
+        "summary": f"Add {slug} ({len(files_list)} files)",
+        "operations": operations,
+    }
+    
+    resp = requests.post(commit_url, headers=headers, json=payload, timeout=120)
     resp.raise_for_status()
     
     shutil.rmtree(batch_dir)
