@@ -66,111 +66,154 @@ def get_species_links(limit=None):
             
     return species_links
 
-def run_crawler_test():
+def setup_hf_api():
+    """Set up and return a Hugging Face API client, or None if unavailable."""
+    if not HF_TOKEN:
+        logging.warning("No HF_TOKEN found. Will scrape locally without cloud sync.")
+        return None
+
+    try:
+        from huggingface_hub.hf_api import HfFolder
+        HfFolder.save_token(HF_TOKEN)
+    except ImportError:
+        pass
+
+    try:
+        api = HfApi(token=HF_TOKEN)
+    except TypeError:
+        api = HfApi()
+
+    try:
+        create_repo(repo_id=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
+        logging.info(f"Targeting dataset repo: {REPO_ID}")
+    except TypeError:
+        try:
+            if '/' in REPO_ID:
+                org, name = REPO_ID.split('/')
+                create_repo(name=name, organization=org, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
+            else:
+                create_repo(name=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
+            logging.info(f"Targeting dataset repo: {REPO_ID}")
+        except Exception as e:
+            logging.error(f"Failed to verify/create repo {REPO_ID} (legacy): {e}")
+            return None
+    except Exception as e:
+        logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
+        return None
+
+    return api
+
+
+def upload_batch(api, batch_dir, slug):
+    """Upload a single batch folder to Hugging Face and delete it locally. Returns file count."""
+    file_count = len([f for f in os.listdir(batch_dir) if not f.startswith('.')])
+    
+    if hasattr(api, "upload_folder"):
+        api.upload_folder(
+            repo_id=REPO_ID,
+            repo_type="dataset",
+            folder_path=batch_dir,
+            path_in_repo=f"data/{slug}"
+        )
+    else:
+        for filename in os.listdir(batch_dir):
+            filepath = os.path.join(batch_dir, filename)
+            path_in_repo = f"data/{slug}/{filename}"
+            try:
+                api.upload_file(
+                    path_or_fileobj=filepath,
+                    path_in_repo=path_in_repo,
+                    repo_id=REPO_ID,
+                    repo_type="dataset",
+                    token=HF_TOKEN
+                )
+            except TypeError:
+                api.upload_file(
+                    path_or_fileobj=filepath,
+                    path_in_repo=path_in_repo,
+                    repo_id=REPO_ID,
+                    repo_type="dataset"
+                )
+    
+    shutil.rmtree(batch_dir)
+    return file_count
+
+
+def reupload_existing_batches(api, master_dir):
+    """Scan for leftover batch folders from a previous run and upload them."""
+    if not os.path.exists(master_dir):
+        return 0, 0
+    
+    batch_dirs = [d for d in os.listdir(master_dir)
+                  if d.startswith("batch_") and os.path.isdir(os.path.join(master_dir, d))]
+    
+    if not batch_dirs:
+        return 0, 0
+    
+    logging.info(f"Found {len(batch_dirs)} leftover batch folders. Re-uploading...")
+    uploaded = 0
+    files_uploaded = 0
+    
+    pbar = tqdm(batch_dirs, desc="Re-uploading leftovers", unit="batch")
+    for batch_name in pbar:
+        batch_path = os.path.join(master_dir, batch_name)
+        slug = batch_name.replace("batch_", "", 1)
+        try:
+            count = upload_batch(api, batch_path, slug)
+            uploaded += 1
+            files_uploaded += count
+            pbar.set_postfix({"Uploaded": uploaded, "Files": files_uploaded})
+        except Exception as e:
+            logging.error(f"Failed to re-upload {batch_name}: {e}")
+    
+    logging.info(f"Re-upload complete. {uploaded}/{len(batch_dirs)} batches, {files_uploaded} files.")
+    return uploaded, files_uploaded
+
+
+def run_crawler():
     logging.info("Starting production crawler...")
-    links = get_species_links(limit=None)
     
-    if not links:
-        logging.error("Found no species links to test.")
-        return
-        
-    logging.info(f"Found {len(links)} species. Starting scrape loop...")
-    
-    # Set up a master output directory for the crawler test
     master_dir = "dataset_test_run"
     os.makedirs(master_dir, exist_ok=True)
     
-    # Set up Hugging Face API
-    api = None
-    if HF_TOKEN:
-        try:
-            # Login globally so old versions pick it up automatically
-            from huggingface_hub.hf_api import HfFolder
-            HfFolder.save_token(HF_TOKEN)
-        except ImportError:
-            pass
-
-        try:
-            # New huggingface_hub
-            api = HfApi(token=HF_TOKEN)
-        except TypeError:
-            # Legacy huggingface_hub (e.g. v0.4.0 on Python 3.6)
-            api = HfApi()
-
-        try:
-            create_repo(repo_id=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
-            logging.info(f"Targeting dataset repo: {REPO_ID}")
-        except TypeError:
-            try:
-                # Legacy version (v0.4.0) uses 'name' and 'organization' instead of 'repo_id'
-                if '/' in REPO_ID:
-                    org, name = REPO_ID.split('/')
-                    create_repo(name=name, organization=org, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
-                else:
-                    create_repo(name=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
-                logging.info(f"Targeting dataset repo: {REPO_ID}")
-            except Exception as e:
-                logging.error(f"Failed to verify/create repo {REPO_ID} (legacy): {e}")
-                api = None
-        except Exception as e:
-            logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
-            api = None
-    else:
-        logging.warning("No HF_TOKEN found. Will scrape locally without cloud sync.")
-
-    success_count = 0
-    fail_count = 0
-    images_synced = 0
+    # --- Phase 0: Set up HF API ---
+    api = setup_hf_api()
     
-    # Progress tracking loop
+    # --- Phase 1: Re-upload any leftover batches from previous runs ---
+    reupload_count = 0
+    reupload_files = 0
+    if api:
+        reupload_count, reupload_files = reupload_existing_batches(api, master_dir)
+    
+    # --- Phase 2: Scrape new species ---
+    links = get_species_links(limit=None)
+    
+    if not links:
+        logging.error("Found no species links.")
+        return
+        
+    logging.info(f"Found {len(links)} species. Starting scrape loop...")
+
+    success_count = reupload_count
+    fail_count = 0
+    images_synced = reupload_files
+    
     pbar = tqdm(links, desc="Scraping Species", unit="species")
     for url in pbar:
-        # Create a unique batch folder for each species based on its URL slug
         slug = url.rstrip('/').split('/')[-1]
         batch_dir = os.path.join(master_dir, f"batch_{slug}")
         
+        # Skip if this species was already uploaded (batch folder gone)
+        # but still exists as a directory (needs upload)
+        
         try:
-            # We reuse the robust logic from the prototype
             success, dl_count = scrape_species_page(url, output_dir=batch_dir)
             
             if not success:
-                raise Exception("Scraper prototype returned failure.")
+                raise Exception("Scraper returned failure.")
             
-            # --- Cloud Sync & Local Clean --
             if api and os.path.exists(batch_dir):
-                logging.info(f"Syncing {batch_dir} to Hugging Face...")
-                if hasattr(api, "upload_folder"):
-                    # Modern huggingface_hub method
-                    api.upload_folder(
-                        repo_id=REPO_ID,
-                        repo_type="dataset",
-                        folder_path=batch_dir,
-                        path_in_repo=f"data/{slug}" # Keep species separate in HF
-                    )
-                else:
-                    # Legacy fallback for old huggingface_hub versions (like v0.4.0)
-                    for filename in os.listdir(batch_dir):
-                        filepath = os.path.join(batch_dir, filename)
-                        path_in_repo = f"data/{slug}/{filename}"
-                        try:
-                            # Try modern arg
-                            api.upload_file(
-                                path_or_fileobj=filepath,
-                                path_in_repo=path_in_repo,
-                                repo_id=REPO_ID,
-                                repo_type="dataset",
-                                token=HF_TOKEN
-                            )
-                        except TypeError:
-                            # Try old arg syntax
-                            api.upload_file(
-                                path_or_fileobj=filepath,
-                                path_in_repo=path_in_repo,
-                                repo_id=REPO_ID,
-                                repo_type="dataset"
-                            )
-                logging.debug(f"Upload successful. Deleting local batch folder {batch_dir}")
-                shutil.rmtree(batch_dir)
+                upload_batch(api, batch_dir, slug)
             
             success_count += 1
             images_synced += dl_count
@@ -179,15 +222,12 @@ def run_crawler_test():
             fail_count += 1
             with open("failed_species.log", "a") as f:
                 f.write(f"{url}\n")
-            logging.debug(f"Error scraping or syncing {url}: {e}")
+            logging.debug(f"Error processing {slug}: {e}")
             
-        # Update progress bar metrics
-        pbar.set_postfix({"Success": success_count, "Fails": fail_count, "Images Synced": images_synced})
-            
-        # Respectful rate limiting: wait 3 seconds before hitting the next species page
+        pbar.set_postfix({"OK": success_count, "Fail": fail_count, "Imgs": images_synced})
         time.sleep(3)
             
-    logging.info(f"Crawler completion. Total success: {success_count}, Total fails: {fail_count}, Total images synced: {images_synced}")
+    logging.info(f"Crawler complete! Success: {success_count}, Fails: {fail_count}, Images: {images_synced}")
 
 if __name__ == '__main__':
-    run_crawler_test()
+    run_crawler()
