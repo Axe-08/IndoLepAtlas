@@ -7,7 +7,7 @@ import shutil
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from huggingface_hub import HfApi, create_repo
+# NOTE: We use the HF REST API directly via requests (huggingface_hub v0.4.0 is too old)
 from dotenv import load_dotenv
 
 from scraper_prototype import scrape_species_page
@@ -66,80 +66,83 @@ def get_species_links(limit=None):
             
     return species_links
 
-def setup_hf_api():
-    """Set up and return a Hugging Face API client, or None if unavailable."""
+def verify_hf_repo():
+    """Verify the HF repo exists using the REST API. Returns True if ready."""
     if not HF_TOKEN:
         logging.warning("No HF_TOKEN found. Will scrape locally without cloud sync.")
-        return None
+        return False
 
-    try:
-        from huggingface_hub.hf_api import HfFolder
-        HfFolder.save_token(HF_TOKEN)
-    except ImportError:
-        pass
-
-    try:
-        api = HfApi(token=HF_TOKEN)
-    except TypeError:
-        api = HfApi()
-
-    try:
-        create_repo(repo_id=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
-        logging.info(f"Targeting dataset repo: {REPO_ID}")
-    except TypeError:
-        try:
-            if '/' in REPO_ID:
-                org, name = REPO_ID.split('/')
-                create_repo(name=name, organization=org, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
-            else:
-                create_repo(name=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
-            logging.info(f"Targeting dataset repo: {REPO_ID}")
-        except Exception as e:
-            logging.error(f"Failed to verify/create repo {REPO_ID} (legacy): {e}")
-            return None
-    except Exception as e:
-        logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
-        return None
-
-    return api
-
-
-def upload_batch(api, batch_dir, slug):
-    """Upload a single batch folder to Hugging Face and delete it locally. Returns file count."""
-    file_count = len([f for f in os.listdir(batch_dir) if not f.startswith('.')])
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     
-    if hasattr(api, "upload_folder"):
-        api.upload_folder(
-            repo_id=REPO_ID,
-            repo_type="dataset",
-            folder_path=batch_dir,
-            path_in_repo=f"data/{slug}"
-        )
+    # Check if the repo exists
+    check_url = f"https://huggingface.co/api/datasets/{REPO_ID}"
+    resp = requests.get(check_url, headers=headers, timeout=10)
+    
+    if resp.status_code == 200:
+        logging.info(f"HF repo {REPO_ID} exists and is accessible.")
+        return True
+    elif resp.status_code == 404:
+        # Try to create it
+        create_url = "https://huggingface.co/api/repos/create"
+        payload = {"type": "dataset", "name": REPO_ID.split('/')[-1], "organization": REPO_ID.split('/')[0]}
+        create_resp = requests.post(create_url, headers=headers, json=payload, timeout=10)
+        if create_resp.status_code in (200, 201):
+            logging.info(f"Created HF repo {REPO_ID}.")
+            return True
+        else:
+            logging.error(f"Failed to create repo: {create_resp.status_code} {create_resp.text}")
+            return False
     else:
-        for filename in os.listdir(batch_dir):
-            filepath = os.path.join(batch_dir, filename)
-            path_in_repo = f"data/{slug}/{filename}"
-            try:
-                api.upload_file(
-                    path_or_fileobj=filepath,
-                    path_in_repo=path_in_repo,
-                    repo_id=REPO_ID,
-                    repo_type="dataset",
-                    token=HF_TOKEN
-                )
-            except TypeError:
-                api.upload_file(
-                    path_or_fileobj=filepath,
-                    path_in_repo=path_in_repo,
-                    repo_id=REPO_ID,
-                    repo_type="dataset"
-                )
+        logging.error(f"Failed to verify repo: {resp.status_code} {resp.text}")
+        return False
+
+
+def upload_batch(batch_dir, slug):
+    """
+    Upload all files in a batch folder to HF in a single commit via the REST API.
+    Deletes the local folder after success. Returns file count.
+    """
+    files_list = [f for f in os.listdir(batch_dir) if not f.startswith('.')]
+    if not files_list:
+        shutil.rmtree(batch_dir)
+        return 0
+    
+    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    
+    # Build the NDJSON header: line 1 = commit summary, line 2+ = file operations
+    header_lines = [json.dumps({"summary": f"Add {slug} ({len(files_list)} files)"})]
+    
+    for filename in files_list:
+        filepath = os.path.join(batch_dir, filename)
+        file_size = os.path.getsize(filepath)
+        path_in_repo = f"data/{slug}/{filename}"
+        header_lines.append(json.dumps({
+            "key": "file",
+            "path": path_in_repo,
+            "size": file_size
+        }))
+    
+    header_content = "\n".join(header_lines)
+    
+    # Build multipart: first part is the header, then each file
+    multipart_files = [("header", (None, header_content, "application/x-ndjson"))]
+    
+    for filename in files_list:
+        filepath = os.path.join(batch_dir, filename)
+        path_in_repo = f"data/{slug}/{filename}"
+        with open(filepath, "rb") as f:
+            content = f.read()
+        multipart_files.append(("file", (path_in_repo, content, "application/octet-stream")))
+    
+    resp = requests.post(commit_url, headers=headers, files=multipart_files, timeout=120)
+    resp.raise_for_status()
     
     shutil.rmtree(batch_dir)
-    return file_count
+    return len(files_list)
 
 
-def reupload_existing_batches(api, master_dir):
+def reupload_existing_batches(master_dir):
     """Scan for leftover batch folders from a previous run and upload them."""
     if not os.path.exists(master_dir):
         return 0, 0
@@ -159,7 +162,7 @@ def reupload_existing_batches(api, master_dir):
         batch_path = os.path.join(master_dir, batch_name)
         slug = batch_name.replace("batch_", "", 1)
         try:
-            count = upload_batch(api, batch_path, slug)
+            count = upload_batch(batch_path, slug)
             uploaded += 1
             files_uploaded += count
             pbar.set_postfix({"Uploaded": uploaded, "Files": files_uploaded})
@@ -176,14 +179,14 @@ def run_crawler():
     master_dir = "dataset_test_run"
     os.makedirs(master_dir, exist_ok=True)
     
-    # --- Phase 0: Set up HF API ---
-    api = setup_hf_api()
+    # --- Phase 0: Verify HF repo ---
+    hf_ready = verify_hf_repo()
     
     # --- Phase 1: Re-upload any leftover batches from previous runs ---
     reupload_count = 0
     reupload_files = 0
-    if api:
-        reupload_count, reupload_files = reupload_existing_batches(api, master_dir)
+    if hf_ready:
+        reupload_count, reupload_files = reupload_existing_batches(master_dir)
     
     # --- Phase 2: Scrape new species ---
     links = get_species_links(limit=None)
@@ -203,17 +206,14 @@ def run_crawler():
         slug = url.rstrip('/').split('/')[-1]
         batch_dir = os.path.join(master_dir, f"batch_{slug}")
         
-        # Skip if this species was already uploaded (batch folder gone)
-        # but still exists as a directory (needs upload)
-        
         try:
             success, dl_count = scrape_species_page(url, output_dir=batch_dir)
             
             if not success:
                 raise Exception("Scraper returned failure.")
             
-            if api and os.path.exists(batch_dir):
-                upload_batch(api, batch_dir, slug)
+            if hf_ready and os.path.exists(batch_dir):
+                upload_batch(batch_dir, slug)
             
             success_count += 1
             images_synced += dl_count
