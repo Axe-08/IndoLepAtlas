@@ -102,11 +102,15 @@ def run_crawler_test():
             logging.info(f"Targeting dataset repo: {REPO_ID}")
         except TypeError:
             try:
-                # Older version might use 'organization' or no token kwarg
-                create_repo(repo_id=REPO_ID, repo_type="dataset", exist_ok=True)
+                # Legacy version (v0.4.0) uses 'name' and 'organization' instead of 'repo_id'
+                if '/' in REPO_ID:
+                    org, name = REPO_ID.split('/')
+                    create_repo(name=name, organization=org, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
+                else:
+                    create_repo(name=REPO_ID, repo_type="dataset", exist_ok=True, token=HF_TOKEN)
                 logging.info(f"Targeting dataset repo: {REPO_ID}")
             except Exception as e:
-                logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
+                logging.error(f"Failed to verify/create repo {REPO_ID} (legacy): {e}")
                 api = None
         except Exception as e:
             logging.error(f"Failed to verify/create repo {REPO_ID}: {e}")
