@@ -1,0 +1,4 @@
+huggingface-hub
+python-dotenv
+requests
+beautifulsoup4
