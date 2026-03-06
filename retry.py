@@ -27,7 +27,7 @@ from scraper_prototype import scrape_species_page
 # Load environment variables
 load_dotenv()
 HF_TOKEN = os.environ.get("HF_TOKEN")
-REPO_ID = "AXE8/IndoLepAtlas"
+REPO_ID = "DihelseeWee/IndoLepAtlas"
 
 COMPLETED_LOG = "completed_species.log"
 FAILED_LOG = "failed_species.log"
