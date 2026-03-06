@@ -169,6 +169,23 @@ def reupload_existing_batches(master_dir):
     return uploaded, files_uploaded
 
 
+COMPLETED_LOG = "completed_species.log"
+FAILED_LOG = "failed_species.log"
+CIRCUIT_BREAKER_THRESHOLD = 10  # consecutive fails before pause
+CIRCUIT_BREAKER_PAUSE = 1800   # 30 minutes in seconds
+CIRCUIT_BREAKER_MAX_PAUSES = 3 # stop after this many pauses
+
+
+def load_completed_species():
+    """Load the set of already-completed species slugs."""
+    completed = set()
+    if os.path.exists(COMPLETED_LOG):
+        with open(COMPLETED_LOG, "r") as f:
+            for line in f:
+                completed.add(line.strip())
+    return completed
+
+
 def run_crawler():
     logging.info("Starting production crawler...")
     
@@ -184,20 +201,31 @@ def run_crawler():
     if hf_ready:
         reupload_count, reupload_files = reupload_existing_batches(master_dir)
     
-    # --- Phase 2: Scrape new species ---
+    # --- Phase 2: Load completed species to skip ---
+    completed = load_completed_species()
+    if completed:
+        logging.info(f"Loaded {len(completed)} already-completed species. Will skip them.")
+    
+    # --- Phase 3: Scrape new species ---
     links = get_species_links(limit=None)
     
     if not links:
         logging.error("Found no species links.")
         return
-        
-    logging.info(f"Found {len(links)} species. Starting scrape loop...")
+    
+    # Filter out already-completed species
+    remaining = [url for url in links if url.rstrip('/').split('/')[-1] not in completed]
+    skipped = len(links) - len(remaining)
+    
+    logging.info(f"Found {len(links)} total species. Skipping {skipped} already done. {len(remaining)} remaining.")
 
-    success_count = reupload_count
+    success_count = reupload_count + len(completed)
     fail_count = 0
     images_synced = reupload_files
+    consecutive_fails = 0
+    pause_count = 0
     
-    pbar = tqdm(links, desc="Scraping Species", unit="species")
+    pbar = tqdm(remaining, desc="Scraping Species", unit="species")
     for url in pbar:
         slug = url.rstrip('/').split('/')[-1]
         batch_dir = os.path.join(master_dir, f"batch_{slug}")
@@ -213,12 +241,28 @@ def run_crawler():
             
             success_count += 1
             images_synced += dl_count
+            consecutive_fails = 0  # Reset on success
+            
+            # Log completed species
+            with open(COMPLETED_LOG, "a") as f:
+                f.write(f"{slug}\n")
             
         except Exception as e:
             fail_count += 1
-            with open("failed_species.log", "a") as f:
+            consecutive_fails += 1
+            with open(FAILED_LOG, "a") as f:
                 f.write(f"{url}\n")
             logging.debug(f"Error processing {slug}: {e}")
+            
+            # --- Circuit Breaker ---
+            if consecutive_fails >= CIRCUIT_BREAKER_THRESHOLD:
+                pause_count += 1
+                if pause_count >= CIRCUIT_BREAKER_MAX_PAUSES:
+                    logging.error(f"Circuit breaker tripped {CIRCUIT_BREAKER_MAX_PAUSES} times. Server appears down. Stopping.")
+                    break
+                logging.warning(f"Circuit breaker: {consecutive_fails} consecutive fails. Pausing {CIRCUIT_BREAKER_PAUSE//60} min (pause {pause_count}/{CIRCUIT_BREAKER_MAX_PAUSES})...")
+                time.sleep(CIRCUIT_BREAKER_PAUSE)
+                consecutive_fails = 0  # Reset after pause
             
         pbar.set_postfix({"OK": success_count, "Fail": fail_count, "Imgs": images_synced})
         time.sleep(3)
