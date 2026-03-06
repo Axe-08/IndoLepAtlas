@@ -108,14 +108,19 @@ def get_images_from_tab(soup, tab_id, life_stage):
             })
     return images
 
-def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
+def scrape_species_page(url_or_filepath, output_dir="dataset_batch", pbar=None):
     """
     Scrape a single species page, downloading its images and metadata.
     Returns: (success: bool, downloaded_count: int)
     """
+    if pbar:
+        slug = url_or_filepath.rstrip('/').split('/')[-1]
+        pbar.set_description(f"Fetching HTML: {slug}")
+        
     logging.debug(f"Scraping: {url_or_filepath}")
     
     try:
+        from tqdm import tqdm
         if url_or_filepath.startswith("http"):
             max_retries = 3
             for attempt in range(max_retries):
@@ -125,7 +130,7 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
                     html_content = response.text
                     break
                 except requests.exceptions.RequestException as e:
-                    logging.warning(f"Attempt {attempt + 1} for {url_or_filepath} failed: {e}")
+                    tqdm.write(f"Attempt {attempt + 1}/{max_retries} failed to fetch HTML for {url_or_filepath}. Retrying in 5s...")
                     if attempt == max_retries - 1:
                         raise
                     time.sleep(5)
@@ -133,7 +138,7 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
             with open(url_or_filepath, "r", encoding="utf-8") as f:
                 html_content = f.read()
     except Exception as e:
-        logging.error(f"Failed to fetch {url_or_filepath} after retries: {e}")
+        tqdm.write(f"ERROR: Failed to fetch {url_or_filepath} after retries: {e}")
         return False, 0
 
     soup = BeautifulSoup(html_content, 'html.parser')
@@ -206,7 +211,7 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
             metadata_records.append(record)
             
             # Respectful rate limiting: wait 1.5 seconds between image downloads
-            time.sleep(1.5)
+            time.sleep(1)
             
         except Exception as e:
             logging.error(f"Failed to download image {img_url}: {e}")

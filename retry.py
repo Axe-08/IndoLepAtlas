@@ -251,7 +251,7 @@ def main():
             batch_dir = os.path.join(master_dir, f"batch_{slug}")
 
             try:
-                success, dl_count = scrape_species_page(url, output_dir=batch_dir)
+                success, dl_count = scrape_species_page(url, output_dir=batch_dir, pbar=pbar)
 
                 if not success:
                     raise Exception("Scraper returned failure.")
