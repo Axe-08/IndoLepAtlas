@@ -52,7 +52,7 @@ Keep the terminal alive: don't close it, don't let your laptop sleep, don't let 
 1. Go to [huggingface.co](https://huggingface.co)
 2. Create or login with your account
 3. Tell me your username and I will make you contributor of the repo
-4. Or just use my own token (here, `HF_TOKEN=hf_**********************************`) — **beware you'll see no contribution of your own if you use my token**
+4. Or just use my own token (ill give it on whatsapp) — **beware you'll see no contribution of your own if you use my token**
 5. After I make you contributor, go to **Settings -> Access Tokens -> New Token (write)**, copy it and paste it in `.env` file.
    * Alternatively go here: [https://huggingface.co/settings/tokens/new?tokenType=write](https://huggingface.co/settings/tokens/new?tokenType=write)
    * Create with name of your choice and copy the token and paste it in `.env` file.
