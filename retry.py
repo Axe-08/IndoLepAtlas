@@ -61,7 +61,8 @@ def load_failed_urls():
 
 
 def upload_batch(batch_dir, slug):
-    """Upload all files in a batch folder to HF via REST API."""
+    """Upload all files in a batch folder to HF via REST API, cleanly handling Git LFS."""
+    import hashlib
     files_list = [f for f in os.listdir(batch_dir) if not f.startswith('.')]
     if not files_list:
         shutil.rmtree(batch_dir)
@@ -70,26 +71,71 @@ def upload_batch(batch_dir, slug):
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-    operations = []
+    # 1. Prepare files
+    lfs_objects = []
+    file_metadata = {}
+
     for filename in files_list:
         filepath = os.path.join(batch_dir, filename)
         with open(filepath, "rb") as f:
             content = f.read()
-        encoded = base64.b64encode(content).decode("ascii")
-        operations.append({
-            "op": "addOrUpdate",
-            "path": f"data/{slug}/{filename}",
-            "encoding": "base64",
-            "content": encoded,
-        })
+        size = len(content)
+        sha256 = hashlib.sha256(content).hexdigest()
+        is_lfs = filename.lower().endswith(('.jpg', '.jpeg', '.png'))
 
-    payload = {
-        "summary": f"Retry: Add {slug} ({len(files_list)} files)",
-        "operations": operations,
-    }
+        file_metadata[filename] = {
+            'content': content,
+            'size': size,
+            'sha256': sha256,
+            'is_lfs': is_lfs
+        }
+        if is_lfs:
+            lfs_objects.append({'oid': sha256, 'size': size})
 
-    resp = requests.post(commit_url, headers=headers, json=payload, timeout=120)
-    resp.raise_for_status()
+    # 2. Upload LFS blobs to S3
+    if lfs_objects:
+        lfs_url = f"https://huggingface.co/datasets/{REPO_ID}.git/info/lfs/objects/batch"
+        lfs_headers = {**headers, "Content-Type": "application/vnd.git-lfs+json", "Accept": "application/vnd.git-lfs+json"}
+        lfs_payload = {
+            "operation": "upload",
+            "transfers": ["basic"],
+            "objects": lfs_objects
+        }
+        resp = requests.post(lfs_url, headers=lfs_headers, json=lfs_payload, timeout=60)
+        resp.raise_for_status()
+
+        for obj in resp.json().get('objects', []):
+            if 'actions' in obj and 'upload' in obj['actions']:
+                up_action = obj['actions']['upload']
+                content_to_upload = next(m['content'] for m in file_metadata.values() if m['sha256'] == obj['oid'])
+                up_resp = requests.put(up_action['href'], headers=up_action.get('header', {}), data=content_to_upload, timeout=120)
+                up_resp.raise_for_status()
+
+    # 3. Commit via NDJSON
+    lines = [json.dumps({"key": "header", "value": {"summary": f"Retry: Add {slug} ({len(files_list)} files)"}})]
+
+    for filename, meta in file_metadata.items():
+        path_in_repo = f"data/{slug}/{filename}"
+        if meta['is_lfs']:
+            lines.append(json.dumps({
+                "key": "lfsFile",
+                "value": {"path": path_in_repo, "algo": "sha256", "oid": meta['sha256'], "size": meta['size']}
+            }))
+        else:
+            b64 = base64.b64encode(meta['content']).decode('ascii')
+            lines.append(json.dumps({
+                "key": "file",
+                "value": {"path": path_in_repo, "encoding": "base64", "content": b64}
+            }))
+
+    ndjson_body = "\n".join(lines)
+    commit_resp = requests.post(
+        commit_url,
+        headers={**headers, "Content-Type": "application/x-ndjson"},
+        data=ndjson_body.encode('utf-8'),
+        timeout=120
+    )
+    commit_resp.raise_for_status()
 
     shutil.rmtree(batch_dir)
     return len(files_list)
