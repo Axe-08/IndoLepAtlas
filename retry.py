@@ -60,6 +60,64 @@ def load_failed_urls():
     return unique
 
 
+def pull_logs_from_hf():
+    """Download existing logs from HF and merge them locally."""
+    logging.info("Pulling sync logs from Hugging Face...")
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    for log_file in [COMPLETED_LOG, FAILED_LOG]:
+        url = f"https://huggingface.co/datasets/{REPO_ID}/resolve/main/{log_file}"
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            if resp.status_code == 200:
+                existing = set()
+                if os.path.exists(log_file):
+                    with open(log_file, "r") as f:
+                        existing.update(line.strip() for line in f if line.strip())
+                        
+                remote_lines = resp.text.splitlines()
+                existing.update(line.strip() for line in remote_lines if line.strip())
+                
+                with open(log_file, "w") as f:
+                    for line in sorted(existing):
+                        f.write(line + "\n")
+                logging.info(f"Merged remote {log_file} ({len(remote_lines)} lines). Total now: {len(existing)}")
+        except Exception as e:
+            logging.debug(f"Could not pull {log_file}: {e}")
+
+
+def push_logs_to_hf():
+    """Upload the current local logs to Hugging Face."""
+    logging.info("Pushing sync logs to Hugging Face...")
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
+    
+    lines = [json.dumps({"key": "header", "value": {"summary": "Sync progress logs (Retry Run)"}})]
+    
+    for log_file in [COMPLETED_LOG, FAILED_LOG]:
+        if os.path.exists(log_file):
+            with open(log_file, "rb") as f:
+                content = f.read()
+            b64 = base64.b64encode(content).decode('ascii')
+            lines.append(json.dumps({
+                "key": "file",
+                "value": {"path": log_file, "encoding": "base64", "content": b64}
+            }))
+            
+    if len(lines) > 1:
+        ndjson_body = "\n".join(lines)
+        try:
+            resp = requests.post(
+                commit_url, 
+                headers={**headers, "Content-Type": "application/x-ndjson"},
+                data=ndjson_body.encode('utf-8'),
+                timeout=30
+            )
+            resp.raise_for_status()
+            logging.info("Sync logs pushed successfully.")
+        except Exception as e:
+            logging.error(f"Failed to push sync logs: {e}")
+
+
 def upload_batch(batch_dir, slug):
     """Upload all files in a batch folder to HF via REST API, cleanly handling Git LFS."""
     import hashlib
@@ -174,6 +232,7 @@ def main():
         hf_ready = resp.status_code == 200
         if hf_ready:
             logging.info(f"HF repo {REPO_ID} verified.")
+            pull_logs_from_hf()
         else:
             logging.warning(f"HF repo check returned {resp.status_code}. Uploads disabled.")
 
@@ -185,43 +244,47 @@ def main():
     images_synced = 0
     still_failing = []
 
-    pbar = tqdm(to_retry, desc="Retrying failed species", unit="species")
-    for url in pbar:
-        slug = url.rstrip('/').split('/')[-1]
-        batch_dir = os.path.join(master_dir, f"batch_{slug}")
+    try:
+        pbar = tqdm(to_retry, desc="Retrying failed species", unit="species")
+        for url in pbar:
+            slug = url.rstrip('/').split('/')[-1]
+            batch_dir = os.path.join(master_dir, f"batch_{slug}")
 
-        try:
-            success, dl_count = scrape_species_page(url, output_dir=batch_dir)
+            try:
+                success, dl_count = scrape_species_page(url, output_dir=batch_dir)
 
-            if not success:
-                raise Exception("Scraper returned failure.")
+                if not success:
+                    raise Exception("Scraper returned failure.")
 
-            if hf_ready and os.path.exists(batch_dir):
-                upload_batch(batch_dir, slug)
+                if hf_ready and os.path.exists(batch_dir):
+                    upload_batch(batch_dir, slug)
 
-            success_count += 1
-            images_synced += dl_count
+                success_count += 1
+                images_synced += dl_count
 
-            # Log as completed
-            with open(COMPLETED_LOG, "a") as f:
-                f.write(f"{slug}\n")
+                # Log as completed
+                with open(COMPLETED_LOG, "a") as f:
+                    f.write(f"{slug}\n")
 
-        except Exception as e:
-            fail_count += 1
-            still_failing.append(url)
-            logging.debug(f"Retry failed for {slug}: {e}")
+            except Exception as e:
+                fail_count += 1
+                still_failing.append(url)
+                logging.debug(f"Retry failed for {slug}: {e}")
 
-        pbar.set_postfix({"OK": success_count, "Fail": fail_count, "Imgs": images_synced})
-        time.sleep(args.delay)
+            pbar.set_postfix({"OK": success_count, "Fail": fail_count, "Imgs": images_synced})
+            time.sleep(args.delay)
 
-    # Rewrite failed_species.log with only the still-failing URLs
-    with open(FAILED_LOG, "w") as f:
-        for url in still_failing:
-            f.write(f"{url}\n")
+        # Rewrite failed_species.log with only the still-failing URLs
+        with open(FAILED_LOG, "w") as f:
+            for url in still_failing:
+                f.write(f"{url}\n")
 
-    logging.info(f"Retry complete! Recovered: {success_count}, Still failing: {fail_count}, Images: {images_synced}")
-    if still_failing:
-        logging.info(f"{FAILED_LOG} updated with {len(still_failing)} remaining failures.")
+        logging.info(f"Retry complete! Recovered: {success_count}, Still failing: {fail_count}, Images: {images_synced}")
+        if still_failing:
+            logging.info(f"{FAILED_LOG} updated with {len(still_failing)} remaining failures.")
+    finally:
+        if hf_ready:
+            push_logs_to_hf()
 
 
 if __name__ == "__main__":

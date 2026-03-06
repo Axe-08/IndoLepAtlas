@@ -233,6 +233,65 @@ def load_completed_species():
     return completed
 
 
+def pull_logs_from_hf():
+    """Download existing logs from HF and merge them locally."""
+    logging.info("Pulling sync logs from Hugging Face...")
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    for log_file in [COMPLETED_LOG, FAILED_LOG]:
+        url = f"https://huggingface.co/datasets/{REPO_ID}/resolve/main/{log_file}"
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            if resp.status_code == 200:
+                # Merge remote with local
+                existing = set()
+                if os.path.exists(log_file):
+                    with open(log_file, "r") as f:
+                        existing.update(line.strip() for line in f if line.strip())
+                        
+                remote_lines = resp.text.splitlines()
+                existing.update(line.strip() for line in remote_lines if line.strip())
+                
+                with open(log_file, "w") as f:
+                    for line in sorted(existing):
+                        f.write(line + "\n")
+                logging.info(f"Merged remote {log_file} ({len(remote_lines)} lines). Total now: {len(existing)}")
+        except Exception as e:
+            logging.debug(f"Could not pull {log_file}: {e}")
+
+
+def push_logs_to_hf():
+    """Upload the current local logs to Hugging Face."""
+    logging.info("Pushing sync logs to Hugging Face...")
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
+    
+    lines = [json.dumps({"key": "header", "value": {"summary": "Sync progress logs"}})]
+    
+    for log_file in [COMPLETED_LOG, FAILED_LOG]:
+        if os.path.exists(log_file):
+            with open(log_file, "rb") as f:
+                content = f.read()
+            b64 = base64.b64encode(content).decode('ascii')
+            lines.append(json.dumps({
+                "key": "file",
+                "value": {"path": log_file, "encoding": "base64", "content": b64}
+            }))
+            
+    if len(lines) > 1:
+        ndjson_body = "\n".join(lines)
+        try:
+            resp = requests.post(
+                commit_url, 
+                headers={**headers, "Content-Type": "application/x-ndjson"},
+                data=ndjson_body.encode('utf-8'),
+                timeout=30
+            )
+            resp.raise_for_status()
+            logging.info("Sync logs pushed successfully.")
+        except Exception as e:
+            logging.error(f"Failed to push sync logs: {e}")
+
+
 def run_crawler(chunk=1, total_chunks=1):
     logging.info(f"Starting production crawler (Chunk {chunk}/{total_chunks})...")
     
@@ -242,10 +301,11 @@ def run_crawler(chunk=1, total_chunks=1):
     # --- Phase 0: Verify HF repo ---
     hf_ready = verify_hf_repo()
     
-    # --- Phase 1: Re-upload any leftover batches from previous runs ---
+    # --- Phase 1: Pull HF Logs & Re-upload leftover batches ---
     reupload_count = 0
     reupload_files = 0
     if hf_ready:
+        pull_logs_from_hf()
         reupload_count, reupload_files = reupload_existing_batches(master_dir)
     
     # --- Phase 2: Load completed species to skip ---
@@ -280,49 +340,53 @@ def run_crawler(chunk=1, total_chunks=1):
     consecutive_fails = 0
     pause_count = 0
     
-    pbar = tqdm(remaining, desc="Scraping Species", unit="species")
-    for url in pbar:
-        slug = url.rstrip('/').split('/')[-1]
-        batch_dir = os.path.join(master_dir, f"batch_{slug}")
-        
-        try:
-            success, dl_count = scrape_species_page(url, output_dir=batch_dir)
+    try:
+        pbar = tqdm(remaining, desc="Scraping Species", unit="species")
+        for url in pbar:
+            slug = url.rstrip('/').split('/')[-1]
+            batch_dir = os.path.join(master_dir, f"batch_{slug}")
             
-            if not success:
-                raise Exception("Scraper returned failure.")
-            
-            if hf_ready and os.path.exists(batch_dir):
-                upload_batch(batch_dir, slug)
-            
-            success_count += 1
-            images_synced += dl_count
-            consecutive_fails = 0  # Reset on success
-            
-            # Log completed species
-            with open(COMPLETED_LOG, "a") as f:
-                f.write(f"{slug}\n")
-            
-        except Exception as e:
-            fail_count += 1
-            consecutive_fails += 1
-            with open(FAILED_LOG, "a") as f:
-                f.write(f"{url}\n")
-            logging.debug(f"Error processing {slug}: {e}")
-            
-            # --- Circuit Breaker ---
-            if consecutive_fails >= CIRCUIT_BREAKER_THRESHOLD:
-                pause_count += 1
-                if pause_count >= CIRCUIT_BREAKER_MAX_PAUSES:
-                    logging.error(f"Circuit breaker tripped {CIRCUIT_BREAKER_MAX_PAUSES} times. Server appears down. Stopping.")
-                    break
-                logging.warning(f"Circuit breaker: {consecutive_fails} consecutive fails. Pausing {CIRCUIT_BREAKER_PAUSE//60} min (pause {pause_count}/{CIRCUIT_BREAKER_MAX_PAUSES})...")
-                time.sleep(CIRCUIT_BREAKER_PAUSE)
-                consecutive_fails = 0  # Reset after pause
-            
-        pbar.set_postfix({"OK": success_count, "Fail": fail_count, "Imgs": images_synced})
-        time.sleep(3)
-            
-    logging.info(f"Crawler complete! Success: {success_count}, Fails: {fail_count}, Images: {images_synced}")
+            try:
+                success, dl_count = scrape_species_page(url, output_dir=batch_dir)
+                
+                if not success:
+                    raise Exception("Scraper returned failure.")
+                
+                if hf_ready and os.path.exists(batch_dir):
+                    upload_batch(batch_dir, slug)
+                
+                success_count += 1
+                images_synced += dl_count
+                consecutive_fails = 0  # Reset on success
+                
+                # Log completed species
+                with open(COMPLETED_LOG, "a") as f:
+                    f.write(f"{slug}\n")
+                
+            except Exception as e:
+                fail_count += 1
+                consecutive_fails += 1
+                with open(FAILED_LOG, "a") as f:
+                    f.write(f"{url}\n")
+                logging.debug(f"Error processing {slug}: {e}")
+                
+                # --- Circuit Breaker ---
+                if consecutive_fails >= CIRCUIT_BREAKER_THRESHOLD:
+                    pause_count += 1
+                    if pause_count >= CIRCUIT_BREAKER_MAX_PAUSES:
+                        logging.error(f"Circuit breaker tripped {CIRCUIT_BREAKER_MAX_PAUSES} times. Server appears down. Stopping.")
+                        break
+                    logging.warning(f"Circuit breaker: {consecutive_fails} consecutive fails. Pausing {CIRCUIT_BREAKER_PAUSE//60} min (pause {pause_count}/{CIRCUIT_BREAKER_MAX_PAUSES})...")
+                    time.sleep(CIRCUIT_BREAKER_PAUSE)
+                    consecutive_fails = 0  # Reset after pause
+                
+            pbar.set_postfix({"OK": success_count, "Fail": fail_count, "Imgs": images_synced})
+            time.sleep(3)
+                
+        logging.info(f"Crawler complete! Success: {success_count}, Fails: {fail_count}, Images: {images_synced}")
+    finally:
+        if hf_ready:
+            push_logs_to_hf()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="IndoLepAtlas Distributed Crawler")
