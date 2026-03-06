@@ -19,7 +19,7 @@ The scraper extracts high-resolution images, taxonomic data, and metadata descri
    HF_TOKEN=your_huggingface_token_here
    ```
 
-   *By default, the script pushes to the `AXE8/IndoLepAtlas` dataset. You can change `REPO_ID` inside `crawler.py` if needed.*
+   *By default, the script pushes to the `DihelseeWee/IndoLepAtlas` dataset. You can change `REPO_ID` inside `crawler.py` if needed.*
 
 ## Usage
 
