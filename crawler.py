@@ -1,8 +1,10 @@
 import os
 import json
 import time
+import math
 import base64
 import logging
+import argparse
 import requests
 import shutil
 from tqdm import tqdm
@@ -231,8 +233,8 @@ def load_completed_species():
     return completed
 
 
-def run_crawler():
-    logging.info("Starting production crawler...")
+def run_crawler(chunk=1, total_chunks=1):
+    logging.info(f"Starting production crawler (Chunk {chunk}/{total_chunks})...")
     
     master_dir = "dataset_test_run"
     os.makedirs(master_dir, exist_ok=True)
@@ -257,6 +259,14 @@ def run_crawler():
     if not links:
         logging.error("Found no species links.")
         return
+        
+    # Apply chunking
+    if total_chunks > 1:
+        chunk_size = math.ceil(len(links) / total_chunks)
+        start_idx = (chunk - 1) * chunk_size
+        end_idx = start_idx + chunk_size
+        links = links[start_idx:end_idx]
+        logging.info(f"Assigned chunk {chunk}/{total_chunks}: {len(links)} species (indices {start_idx} to {min(end_idx, len(links))-1})")
     
     # Filter out already-completed species
     remaining = [url for url in links if url.rstrip('/').split('/')[-1] not in completed]
@@ -315,4 +325,13 @@ def run_crawler():
     logging.info(f"Crawler complete! Success: {success_count}, Fails: {fail_count}, Images: {images_synced}")
 
 if __name__ == '__main__':
-    run_crawler()
+    parser = argparse.ArgumentParser(description="IndoLepAtlas Distributed Crawler")
+    parser.add_argument("--chunk", type=int, default=1, help="Which chunk of the workload to run (1-indexed)")
+    parser.add_argument("--total-chunks", type=int, default=1, help="Total number of chunks to divide the workload into")
+    args = parser.parse_args()
+    
+    if args.chunk < 1 or args.chunk > args.total_chunks:
+        logging.error("--chunk must be between 1 and --total-chunks")
+        exit(1)
+        
+    run_crawler(chunk=args.chunk, total_chunks=args.total_chunks)
