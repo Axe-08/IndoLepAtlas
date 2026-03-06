@@ -161,7 +161,8 @@ def scrape_species_page(url_or_filepath, output_dir="dataset_batch"):
 
     logging.debug(f"Found {len(images_to_download)} adult & {len(early_images)} early images. Downloading all {len(sample_images)} images...")
 
-    for i, img_data in enumerate(sample_images):
+    from tqdm import tqdm
+    for i, img_data in enumerate(tqdm(sample_images, desc=f"Downloading {scientific_name}", leave=False, unit="img")):
         img_url = img_data['url']
         
         try:
