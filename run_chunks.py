@@ -1,4 +1,4 @@
-total_runs = 200
+total_runs = 100
 import subprocess
 import random
 for _ in range(total_runs):
