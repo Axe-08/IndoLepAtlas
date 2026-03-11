@@ -109,25 +109,40 @@ def release_hf_lock(slug):
 
 def upload_host_plants_dir(host_plants_dir, slug=None):
     """
-    Upload entire host_plants/ tree to HF.
+    Upload a tree of host plant data to HuggingFace.
 
-    Images  LFS.  JSON / JSONL  regular files.
-    Does NOT delete local folder. Returns file count.
+    ``host_plants_dir`` may point to the top-level ``host_plants`` folder or
+    to any of its subdirectories (for example when uploading a single
+    species batch).  Images are pushed via Git LFS; JSON/JSONL files are
+    committed normally.  The local filesystem is not modified by this
+    helper; callers should remove directories after a successful upload if
+    desired.
 
-    If ``slug`` is provided the HF commit message will mention the plant
-    ("added {slug} plant") rather than the generic summary used previously.
-    This makes it easier to track individual updates in the HF history.
+    When ``slug`` is supplied the commit summary will mention the plant
+    ("added {slug} plant").  If a subdirectory matching the slug exists we
+    restrict the upload to that folder so the file count in the message
+    reflects only the files actually added.  This mirrors the behaviour in
+    ``crawler_logged.upload_batch`` and keeps the HF history readable.
     """
     import hashlib
 
-    if not os.path.exists(host_plants_dir):
+    # if caller provided a slug and there is a corresponding subdirectory,
+    # only upload that subfolder rather than the entire tree.  upload_root
+    # will be used for walking below.
+    upload_root = host_plants_dir
+    if slug:
+        candidate = os.path.join(host_plants_dir, slug)
+        if os.path.isdir(candidate):
+            upload_root = candidate
+
+    if not os.path.exists(upload_root):
         return 0
 
     headers       = {"Authorization": f"Bearer {HF_TOKEN}"}
     lfs_objects   = []
     file_metadata = {}
 
-    for root, dirs, files in os.walk(host_plants_dir):
+    for root, dirs, files in os.walk(upload_root):
         dirs[:] = [d for d in dirs if not d.startswith('.')]
         for filename in files:
             if filename.startswith('.'):
@@ -283,6 +298,52 @@ def push_logs_to_hf():
             logging.error(f"Failed to push plant logs: {e}")
 
 
+def reupload_existing_batches(master_dir):
+    """Scan for leftover plant subdirectories and re-upload them.
+
+    The original crawler created folders named after the plant slug (e.g.
+    ``host_plants/Abrus_precatorius``).  If a previous run was interrupted
+    before pushing to HF we may be left with these directories locally.  This
+    helper finds every non-hidden subdirectory of ``master_dir`` and attempts
+    to upload it; on success the folder is removed so it won't be retried.
+
+    Returns a tuple ``(folders_uploaded, files_uploaded)`` matching the
+    earlier implementation.
+    """
+    if not os.path.exists(master_dir):
+        return 0, 0
+    plant_dirs = [
+        d
+        for d in os.listdir(master_dir)
+        if not d.startswith('.') and os.path.isdir(os.path.join(master_dir, d))
+    ]
+    if not plant_dirs:
+        return 0, 0
+
+    logging.info(f"Found {len(plant_dirs)} leftover plant folders. Re-uploading...")
+    uploaded = files_uploaded = 0
+    pbar = tqdm(plant_dirs, desc="Re-uploading leftovers", unit="folder")
+    for name in pbar:
+        slug = name
+        try:
+            count = upload_host_plants_dir(os.path.join(master_dir, name), slug)
+            uploaded += 1
+            files_uploaded += count
+            pbar.set_postfix({"Uploaded": uploaded, "Files": files_uploaded})
+            # clear out folder once done
+            try:
+                shutil.rmtree(os.path.join(master_dir, name))
+            except Exception:
+                logging.debug(f"Could not delete leftover folder {name}")
+        except Exception as e:
+            logging.error(f"Failed to re-upload {name}: {e}")
+
+    logging.info(
+        f"Re-upload complete. {uploaded}/{len(plant_dirs)} folders, {files_uploaded} files."
+    )
+    return uploaded, files_uploaded
+
+
 # ── Plant list scraper ────────────────────────────────────────────────────────
 
 def get_plant_links(limit=None):
@@ -366,6 +427,7 @@ def run_plant_crawler(chunk=1, total_chunks=1):
 
     if hf_ready:
         pull_logs_from_hf()
+        reupload_count, reupload_files = reupload_existing_batches(host_plants_dir)
 
     # Load completed
     completed = set()
@@ -418,7 +480,10 @@ def run_plant_crawler(chunk=1, total_chunks=1):
                     raise Exception("Scraper returned failure.")
 
                 if hf_ready and img_count > 0:
-                    upload_host_plants_dir(host_plants_dir, slug=slug)
+                    # upload only the folder for the current plant; the helper
+                    # itself will also restrict to the slug if necessary but
+                    # this makes the intent explicit.
+                    upload_host_plants_dir(os.path.join(host_plants_dir, slug), slug=slug)
 
                 success_count     += 1
                 images_synced     += img_count
