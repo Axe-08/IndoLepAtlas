@@ -2,7 +2,9 @@
 
 This repository contains a Python-based web scraper designed to compile a comprehensive dataset of butterflies, moths, and host plants from [ifoundbutterflies.org](https://www.ifoundbutterflies.org/).
 
-The scraper extracts high-resolution images, taxonomic data, and metadata descriptions (like early stages, distribution, and larval host plants). To ensure minimal storage overhead on the host machine, it utilizes a **micro-batching** strategy: it downloads the images for a single species, generates the structured `metadata.jsonl`, syncs the batch directly to a Hugging Face Dataset repository, and immediately wipes the local temporary folder.
+The scraper extracts high-resolution images, taxonomic data, and metadata descriptions (like early stages, distribution, and larval host plants). To ensure minimal storage overhead on the host machine, it utilizes a **micro-batching** strategy: it downloads the images for a single species, generates the structured metadata file(s), syncs the batch directly to a Hugging Face Dataset repository, and immediately wipes the local temporary folder.
+
+Metadata used to be written to a single `metadata.jsonl` at the top level, but is now split so that each plant gets its own `host_plants/{PlantKey}/metadata.jsonl` file.  This makes downstream consumption and syncing easier.
 
 ## Setup
 

@@ -13,8 +13,11 @@ Output per plant:
   host_plants/{PlantKey}/
       {PlantKey}_hero.jpg             <- main plant image
       {PlantKey}_gallery_{NNN}.jpg    <- gallery images
+      metadata.jsonl                  <- per-plant metadata records
   host_plants/registry.json           <- append-only shared registry
-  host_plants/metadata.jsonl          <- append-only shared metadata
+  (previously host_plants/metadata.jsonl was a single big file; this
+   script now splits metadata into individual files to make it easier to
+   consume or sync per plant)
 
 Returns: (success: bool, image_count: int)
 """
@@ -295,10 +298,14 @@ def scrape_plant_page(url, host_plants_dir="host_plants", pbar=None):
 
     save_registry(registry, registry_path)
 
-    # ── Append to shared metadata.jsonl ───────────────────────────────────
+    # ── Write metadata records for this plant ────────────────────────────
+    # Previously we appended every record into a single
+    # host_plants/metadata.jsonl file.  That made the file large and
+    # awkward to work with, so now each plant gets its own metadata file
+    # inside its folder.  The global file is no longer used.
     if metadata_records:
-        meta_path = os.path.join(host_plants_dir, "metadata.jsonl")
-        with open(meta_path, 'a', encoding='utf-8') as f:
+        plant_meta_path = os.path.join(plant_dir, "metadata.jsonl")
+        with open(plant_meta_path, 'a', encoding='utf-8') as f:
             for rec in metadata_records:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 

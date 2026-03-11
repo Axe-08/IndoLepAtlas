@@ -260,8 +260,17 @@ def pull_logs_from_hf():
 
 
 def push_logs_to_hf():
-    """Upload the current local logs to Hugging Face."""
+    """Upload the current local logs to Hugging Face.
+
+    Perform a merge with the remote copy first to avoid overwriting
+    another process's updates when multiple crawlers are running.
+    """
     logging.info("Pushing sync logs to Hugging Face...")
+    try:
+        pull_logs_from_hf()
+    except Exception:
+        pass
+
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     
