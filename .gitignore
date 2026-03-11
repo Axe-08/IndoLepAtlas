@@ -34,7 +34,9 @@ MANIFEST
 # Scraping data outputs (local micro-batches)
 dataset_batch/
 dataset_test_run/
-host_plants/
+# host_plants/ contains the dataset; we want to track it on HF so it must
+# not be ignored.  Remove the ignore entry or add an explicit negation.
+# host_plants/
 *.jsonl
 *.log
 

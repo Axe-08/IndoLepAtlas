@@ -390,13 +390,6 @@ def pull_logs_from_hf():
 
 def push_logs_to_hf():
     logging.info("Pushing sync logs to Hugging Face...")
-    # merge remote changes first so we don't accidentally overwrite
-    # another worker's new entries when running distributed jobs
-    try:
-        pull_logs_from_hf()
-    except Exception:
-        pass
-
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines = [json.dumps({"key": "header", "value": {"summary": "Sync progress logs"}})]
@@ -446,7 +439,7 @@ def run_crawler(chunk=1, total_chunks=1):
     reupload_count = reupload_files = 0
     if hf_ready:
         pull_logs_from_hf()
-        # reupload_count, reupload_files = reupload_existing_batches(master_dir)
+        reupload_count, reupload_files = reupload_existing_batches(master_dir)
 
     # Phase 2: Load state
     completed = load_completed_species()
