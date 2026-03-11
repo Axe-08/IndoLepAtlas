@@ -1,0 +1,833 @@
+{
+  "Acanthus_ilicifolius": {
+    "plant_scientific": "Acanthus ilicifolius",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Acanthus",
+      "Species": "ilicifolius"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/acanthus-ilicifolius",
+    "butterfly_species": [
+      "Bibasis sena",
+      "Plastingia naga",
+      "Vanessa cardui",
+      "Colotis amata",
+      "https://www.ifoundbutterflies.org/acanthus-ilicifolius"
+    ],
+    "images": [
+      "host_plants/Acanthus_ilicifolius/Acanthus_ilicifolius_hero.jpg",
+      "host_plants/Acanthus_ilicifolius/Acanthus_ilicifolius_gallery_001.jpg"
+    ]
+  },
+  "Andrographis_paniculata": {
+    "plant_scientific": "Andrographis paniculata",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Andrographis",
+      "Species": "paniculata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/andrographis-paniculata",
+    "butterfly_species": [
+      "Cepora nerissa",
+      "https://www.ifoundbutterflies.org/andrographis-paniculata"
+    ],
+    "images": [
+      "host_plants/Andrographis_paniculata/Andrographis_paniculata_hero.jpg"
+    ]
+  },
+  "Eranthemum_roseum": {
+    "plant_scientific": "Eranthemum roseum",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Eranthemum",
+      "Species": "roseum"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/eranthemum-roseum",
+    "butterfly_species": [
+      "Celaenorrhinus ambareesa",
+      "Celaenorrhinus leucocera",
+      "Celaenorrhinus putra",
+      "Junonia iphita",
+      "Kallima horsfieldii",
+      "Notocrypta paralysos",
+      "https://www.ifoundbutterflies.org/eranthemum-roseum"
+    ],
+    "images": [
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_hero.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_001.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_002.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_003.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_004.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_005.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_006.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_007.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_008.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_009.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_010.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_011.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_012.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_013.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_014.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_015.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_016.jpg",
+      "host_plants/Eranthemum_roseum/Eranthemum_roseum_gallery_017.jpg"
+    ]
+  },
+  "Graptophyllum_pictum": {
+    "plant_scientific": "Graptophyllum pictum",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Graptophyllum",
+      "Species": "pictum"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/graptophyllum-pictum",
+    "butterfly_species": [
+      "Doleschallia bisaltide",
+      "https://www.ifoundbutterflies.org/graptophyllum-pictum"
+    ],
+    "images": [
+      "host_plants/Graptophyllum_pictum/Graptophyllum_pictum_hero.jpg",
+      "host_plants/Graptophyllum_pictum/Graptophyllum_pictum_gallery_001.jpg",
+      "host_plants/Graptophyllum_pictum/Graptophyllum_pictum_gallery_002.jpg",
+      "host_plants/Graptophyllum_pictum/Graptophyllum_pictum_gallery_003.jpg"
+    ]
+  },
+  "Asystasia_dalzelliana": {
+    "plant_scientific": "Asystasia dalzelliana",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Asystasia",
+      "Species": "dalzelliana"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/asystasia-dalzelliana",
+    "butterfly_species": [
+      "Sarangesa dasahara",
+      "https://www.ifoundbutterflies.org/asystasia-dalzelliana"
+    ],
+    "images": [
+      "host_plants/Asystasia_dalzelliana/Asystasia_dalzelliana_hero.jpg",
+      "host_plants/Asystasia_dalzelliana/Asystasia_dalzelliana_gallery_001.jpg"
+    ]
+  },
+  "Hygrophila_auriculata": {
+    "plant_scientific": "Hygrophila auriculata",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Hygrophila",
+      "Species": "auriculata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/hygrophila-auriculata",
+    "butterfly_species": [
+      "Zizula hylax",
+      "Junonia almana",
+      "Junonia atlites",
+      "Junonia hierta",
+      "Junonia iphita",
+      "Junonia lemonias",
+      "Junonia orithya",
+      "Hasora badra",
+      "https://www.ifoundbutterflies.org/hygrophila-auriculata"
+    ],
+    "images": [
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_hero.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_001.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_002.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_003.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_004.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_005.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_006.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_007.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_008.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_009.jpg",
+      "host_plants/Hygrophila_auriculata/Hygrophila_auriculata_gallery_010.jpg"
+    ]
+  },
+  "Hygrophila_ringens": {
+    "plant_scientific": "Hygrophila ringens",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Hygrophila",
+      "Species": "ringens"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/hygrophila-ringens",
+    "butterfly_species": [
+      "Zizula hylax",
+      "Junonia almana",
+      "https://www.ifoundbutterflies.org/hygrophila-ringens"
+    ],
+    "images": [
+      "host_plants/Hygrophila_ringens/Hygrophila_ringens_hero.jpg",
+      "host_plants/Hygrophila_ringens/Hygrophila_ringens_gallery_001.jpg",
+      "host_plants/Hygrophila_ringens/Hygrophila_ringens_gallery_002.jpg"
+    ]
+  },
+  "Allophylus_cobbe": {
+    "plant_scientific": "Allophylus cobbe",
+    "plant_common": "",
+    "plant_family": "Sapindaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Sapindaceae",
+      "Genus": "Allophylus",
+      "Species": "cobbe"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/allophylus-cobbe",
+    "butterfly_species": [
+      "Odontoptilum angulata",
+      "Anthene lycaenina",
+      "Catochrysops strabo",
+      "Megisba malaya",
+      "Prosotas nora",
+      "Cigaritis vulcanus",
+      "https://www.ifoundbutterflies.org/allophylus-cobbe"
+    ],
+    "images": [
+      "host_plants/Allophylus_cobbe/Allophylus_cobbe_hero.jpg",
+      "host_plants/Allophylus_cobbe/Allophylus_cobbe_gallery_001.jpg",
+      "host_plants/Allophylus_cobbe/Allophylus_cobbe_gallery_002.jpg",
+      "host_plants/Allophylus_cobbe/Allophylus_cobbe_gallery_003.jpg",
+      "host_plants/Allophylus_cobbe/Allophylus_cobbe_gallery_004.jpg"
+    ]
+  },
+  "Ziziphus_rugosa": {
+    "plant_scientific": "Ziziphus rugosa",
+    "plant_common": "",
+    "plant_family": "Rhamnaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Rhamnaceae",
+      "Genus": "Ziziphus",
+      "Species": "rugosa"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/ziziphus-rugosa",
+    "butterfly_species": [
+      "Caleta decidia",
+      "Caleta elna",
+      "Castalius rosimon",
+      "Catapaecilma major",
+      "Rapala iarbus",
+      "Rapala lankana",
+      "Rapala varuna",
+      "Cigaritis vulcanus",
+      "Tarucus balkanica",
+      "Tarucus indica",
+      "https://www.ifoundbutterflies.org/ziziphus-rugosa"
+    ],
+    "images": [
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_hero.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_001.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_002.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_003.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_004.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_005.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_006.jpg",
+      "host_plants/Ziziphus_rugosa/Ziziphus_rugosa_gallery_007.jpg"
+    ]
+  },
+  "Strobilanthes_lanata": {
+    "plant_scientific": "Strobilanthes lanata",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Strobilanthes",
+      "Species": "lanata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/strobilanthes-lanata",
+    "butterfly_species": [
+      "Celaenorrhinus ambareesa",
+      "https://www.ifoundbutterflies.org/strobilanthes-lanata"
+    ],
+    "images": [
+      "host_plants/Strobilanthes_lanata/Strobilanthes_lanata_hero.jpg",
+      "host_plants/Strobilanthes_lanata/Strobilanthes_lanata_gallery_001.jpg"
+    ]
+  },
+  "Thottea_sivarajanii": {
+    "plant_scientific": "Thottea sivarajanii",
+    "plant_common": "",
+    "plant_family": "Aristolochiaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Aristolochiaceae",
+      "Genus": "Thottea",
+      "Species": "sivarajanii"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/thottea-sivarajanii",
+    "butterfly_species": [
+      "Pachliopta aristolochiae",
+      "Pachliopta pandiyana",
+      "https://www.ifoundbutterflies.org/thottea-sivarajanii"
+    ],
+    "images": [
+      "host_plants/Thottea_sivarajanii/Thottea_sivarajanii_hero.jpg"
+    ]
+  },
+  "Calamus_sp": {
+    "plant_scientific": "Calamus sp.",
+    "plant_common": "",
+    "plant_family": "Arecaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Arecaceae",
+      "Genus": "Calamus",
+      "Species": "sp."
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/calamus-sp",
+    "butterfly_species": [
+      "Hyarotis adrastus",
+      "Quedara basiflava",
+      "Elymnias hypermnestra",
+      "https://www.ifoundbutterflies.org/calamus-sp"
+    ],
+    "images": [
+      "host_plants/Calamus_sp/Calamus_sp_hero.jpg",
+      "host_plants/Calamus_sp/Calamus_sp_gallery_001.jpg"
+    ]
+  },
+  "Sorghum_bicolor": {
+    "plant_scientific": "Sorghum bicolor",
+    "plant_common": "",
+    "plant_family": "Poaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Poaceae",
+      "Genus": "Sorghum",
+      "Species": "bicolor"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/sorghum-bicolor",
+    "butterfly_species": [
+      "Borbo cinnara",
+      "Pelopidas mathias",
+      "https://www.ifoundbutterflies.org/sorghum-bicolor"
+    ],
+    "images": [
+      "host_plants/Sorghum_bicolor/Sorghum_bicolor_hero.jpg"
+    ]
+  },
+  "Tridax_procumbens": {
+    "plant_scientific": "Tridax procumbens",
+    "plant_common": "",
+    "plant_family": "Asteraceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Asteraceae",
+      "Genus": "Tridax",
+      "Species": "procumbens"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/tridax-procumbens",
+    "butterfly_species": [
+      "Gomalia elma",
+      "Spialia galba",
+      "Euchrysops cnejus",
+      "Freyeria putli",
+      "Freyeria trochylus",
+      "Lampides boeticus",
+      "Polyommatus spp",
+      "Potanthus spp",
+      "Tarucus spp.",
+      "Danaus chrysippus",
+      "Junonia orithya",
+      "Colias fieldii",
+      "Colotis amata",
+      "Colotis aurora",
+      "Colotis danae",
+      "Colotis etrida",
+      "Eurema hecabe",
+      "Eurema laeta",
+      "Vanessa cardui",
+      "https://www.ifoundbutterflies.org/tridax-procumbens"
+    ],
+    "images": [
+      "host_plants/Tridax_procumbens/Tridax_procumbens_hero.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_001.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_002.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_003.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_004.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_005.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_006.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_007.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_008.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_009.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_010.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_011.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_012.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_013.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_014.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_015.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_016.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_017.jpg",
+      "host_plants/Tridax_procumbens/Tridax_procumbens_gallery_018.jpg"
+    ]
+  },
+  "Zinnia_peruviana": {
+    "plant_scientific": "Zinnia peruviana",
+    "plant_common": "",
+    "plant_family": "Asteraceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Asteraceae",
+      "Genus": "Zinnia",
+      "Species": "peruviana"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/zinnia-peruviana",
+    "butterfly_species": [
+      "Euploea core",
+      "Junonia atlites",
+      "Tirumala limniace",
+      "Catopsilia pomona",
+      "https://www.ifoundbutterflies.org/zinnia-peruviana"
+    ],
+    "images": [
+      "host_plants/Zinnia_peruviana/Zinnia_peruviana_hero.jpg",
+      "host_plants/Zinnia_peruviana/Zinnia_peruviana_gallery_001.jpg",
+      "host_plants/Zinnia_peruviana/Zinnia_peruviana_gallery_002.jpg"
+    ]
+  },
+  "Impatiens_balsamina": {
+    "plant_scientific": "Impatiens balsamina",
+    "plant_common": "",
+    "plant_family": "Balsaminaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Balsaminaceae",
+      "Genus": "Impatiens",
+      "Species": "balsamina"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/impatiens-balsamina",
+    "butterfly_species": [
+      "Tarucus spp.",
+      "https://www.ifoundbutterflies.org/impatiens-balsamina"
+    ],
+    "images": [
+      "host_plants/Impatiens_balsamina/Impatiens_balsamina_hero.jpg",
+      "host_plants/Impatiens_balsamina/Impatiens_balsamina_gallery_001.jpg",
+      "host_plants/Impatiens_balsamina/Impatiens_balsamina_gallery_002.jpg"
+    ]
+  },
+  "Impatiens_minor": {
+    "plant_scientific": "Impatiens minor",
+    "plant_common": "",
+    "plant_family": "Balsaminaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Balsaminaceae",
+      "Genus": "Impatiens",
+      "Species": "minor"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/impatiens-minor",
+    "butterfly_species": [
+      "Sarangesa dasahara",
+      "Talicada nyseus",
+      "Papilio polytes",
+      "Catopsilia pomona",
+      "Eurema hecabe",
+      "Leptosia nina",
+      "https://www.ifoundbutterflies.org/impatiens-minor"
+    ],
+    "images": [
+      "host_plants/Impatiens_minor/Impatiens_minor_hero.jpg",
+      "host_plants/Impatiens_minor/Impatiens_minor_gallery_001.jpg",
+      "host_plants/Impatiens_minor/Impatiens_minor_gallery_002.jpg"
+    ]
+  },
+  "Berberis_sp": {
+    "plant_scientific": "Berberis sp.",
+    "plant_common": "",
+    "plant_family": "Berberidaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Berberidaceae",
+      "Genus": "Berberis",
+      "Species": "sp."
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/berberis-sp",
+    "butterfly_species": [
+      "Oreolyce vardhana",
+      "https://www.ifoundbutterflies.org/berberis-sp"
+    ],
+    "images": [
+      "host_plants/Berberis_sp/Berberis_sp_hero.jpg",
+      "host_plants/Berberis_sp/Berberis_sp_gallery_001.jpg"
+    ]
+  },
+  "Bixa_orellana": {
+    "plant_scientific": "Bixa orellana",
+    "plant_common": "",
+    "plant_family": "Bixaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Bixaceae",
+      "Genus": "Bixa",
+      "Species": "orellana"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/bixa-orellana",
+    "butterfly_species": [
+      "Coladenia indrani",
+      "https://www.ifoundbutterflies.org/bixa-orellana"
+    ],
+    "images": [
+      "host_plants/Bixa_orellana/Bixa_orellana_hero.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_001.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_002.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_003.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_004.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_005.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_006.jpg",
+      "host_plants/Bixa_orellana/Bixa_orellana_gallery_007.jpg"
+    ]
+  },
+  "Coldenia_procumbens": {
+    "plant_scientific": "Coldenia procumbens",
+    "plant_common": "",
+    "plant_family": "Boraginaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Boraginaceae",
+      "Genus": "Coldenia",
+      "Species": "procumbens"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/coldenia-procumbens",
+    "butterfly_species": [
+      "Zizeeria karsandra",
+      "Zizula hylax",
+      "https://www.ifoundbutterflies.org/coldenia-procumbens"
+    ],
+    "images": [
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_hero.jpg",
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_gallery_001.jpg",
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_gallery_002.jpg",
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_gallery_003.jpg",
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_gallery_004.jpg",
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_gallery_005.jpg",
+      "host_plants/Coldenia_procumbens/Coldenia_procumbens_gallery_006.jpg"
+    ]
+  },
+  "Tragia_involucrata": {
+    "plant_scientific": "Tragia involucrata",
+    "plant_common": "",
+    "plant_family": "Euphorbiaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Euphorbiaceae",
+      "Genus": "Tragia",
+      "Species": "involucrata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/tragia-involucrata",
+    "butterfly_species": [
+      "Ariadne ariadne",
+      "Ariadne merione",
+      "Byblia ilithyia",
+      "Libythea myrrha",
+      "https://www.ifoundbutterflies.org/tragia-involucrata"
+    ],
+    "images": [
+      "host_plants/Tragia_involucrata/Tragia_involucrata_hero.jpg",
+      "host_plants/Tragia_involucrata/Tragia_involucrata_gallery_001.jpg",
+      "host_plants/Tragia_involucrata/Tragia_involucrata_gallery_002.jpg",
+      "host_plants/Tragia_involucrata/Tragia_involucrata_gallery_003.jpg"
+    ]
+  },
+  "Tragia_plukenetti": {
+    "plant_scientific": "Tragia plukenetti",
+    "plant_common": "",
+    "plant_family": "Euphorbiaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Euphorbiaceae",
+      "Genus": "Tragia",
+      "Species": "plukenetti"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/tragia-plukenetii",
+    "butterfly_species": [
+      "Ariadne ariadne",
+      "Ariadne merione",
+      "Byblia ilithyia",
+      "Libythea myrrha",
+      "https://www.ifoundbutterflies.org/tragia-plukenetii"
+    ],
+    "images": [
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_hero.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_001.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_002.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_003.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_004.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_005.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_006.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_007.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_008.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_009.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_010.jpg",
+      "host_plants/Tragia_plukenetti/Tragia_plukenetti_gallery_011.jpg"
+    ]
+  },
+  "Tragia_praetervisa": {
+    "plant_scientific": "Tragia praetervisa",
+    "plant_common": "",
+    "plant_family": "Euphorbiaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Euphorbiaceae",
+      "Genus": "Tragia",
+      "Species": "praetervisa"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/tragia-praetervisa",
+    "butterfly_species": [
+      "Ariadne ariadne",
+      "Ariadne merione",
+      "https://www.ifoundbutterflies.org/tragia-praetervisa"
+    ],
+    "images": [
+      "host_plants/Tragia_praetervisa/Tragia_praetervisa_hero.jpg",
+      "host_plants/Tragia_praetervisa/Tragia_praetervisa_gallery_001.jpg",
+      "host_plants/Tragia_praetervisa/Tragia_praetervisa_gallery_002.jpg",
+      "host_plants/Tragia_praetervisa/Tragia_praetervisa_gallery_003.jpg"
+    ]
+  },
+  "Abrus_precatorius": {
+    "plant_scientific": "Abrus precatorius",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Abrus",
+      "Species": "precatorius"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/abrus-precatorius",
+    "butterfly_species": [
+      "Curetis thetis",
+      "Jamides celeno",
+      "Lampides boeticus",
+      "Leptotes plinius",
+      "https://www.ifoundbutterflies.org/abrus-precatorius"
+    ],
+    "images": [
+      "host_plants/Abrus_precatorius/Abrus_precatorius_hero.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_001.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_002.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_003.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_004.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_005.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_006.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_007.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_008.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_009.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_010.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_011.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_012.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_013.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_014.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_015.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_016.jpg",
+      "host_plants/Abrus_precatorius/Abrus_precatorius_gallery_017.jpg"
+    ]
+  },
+  "Acacia_auriculiformis": {
+    "plant_scientific": "Acacia auriculiformis",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Acacia",
+      "Species": "auriculiformis"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/acacia-auriculiformis",
+    "butterfly_species": [
+      "Prosotas nora",
+      "Catopsilia pomona",
+      "https://www.ifoundbutterflies.org/acacia-auriculiformis"
+    ],
+    "images": [
+      "host_plants/Acacia_auriculiformis/Acacia_auriculiformis_hero.jpg",
+      "host_plants/Acacia_auriculiformis/Acacia_auriculiformis_gallery_001.jpg"
+    ]
+  },
+  "Strobilanthes_lupulina": {
+    "plant_scientific": "Strobilanthes lupulina",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Strobilanthes",
+      "Species": "lupulina"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/strobilanthes-lupulina",
+    "butterfly_species": [
+      "Celaenorrhinus ambareesa",
+      "Junonia iphita",
+      "https://www.ifoundbutterflies.org/strobilanthes-lupulina"
+    ],
+    "images": [
+      "host_plants/Strobilanthes_lupulina/Strobilanthes_lupulina_hero.jpg"
+    ]
+  },
+  "Strobilanthes_wightiana": {
+    "plant_scientific": "Strobilanthes wightiana",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Strobilanthes",
+      "Species": "wightiana"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/strobilanthes-wightiana",
+    "butterfly_species": [
+      "Celaenorrhinus fusca",
+      "https://www.ifoundbutterflies.org/strobilanthes-wightiana"
+    ],
+    "images": [
+      "host_plants/Strobilanthes_wightiana/Strobilanthes_wightiana_hero.jpg"
+    ]
+  },
+  "Thunbergia_alata": {
+    "plant_scientific": "Thunbergia alata",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Thunbergia",
+      "Species": "alata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/thunbergia-alata",
+    "butterfly_species": [
+      "Eurema blanda",
+      "Eurema hecabe",
+      "Eurema laeta",
+      "https://www.ifoundbutterflies.org/thunbergia-alata"
+    ],
+    "images": [
+      "host_plants/Thunbergia_alata/Thunbergia_alata_hero.jpg"
+    ]
+  },
+  "Thunbergia_grandiflora": {
+    "plant_scientific": "Thunbergia grandiflora",
+    "plant_common": "",
+    "plant_family": "Acanthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Acanthaceae",
+      "Genus": "Thunbergia",
+      "Species": "grandiflora"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/thunbergia-grandiflora",
+    "butterfly_species": [
+      "Caltoris spp.",
+      "Udaspes folus",
+      "https://www.ifoundbutterflies.org/thunbergia-grandiflora"
+    ],
+    "images": [
+      "host_plants/Thunbergia_grandiflora/Thunbergia_grandiflora_hero.jpg",
+      "host_plants/Thunbergia_grandiflora/Thunbergia_grandiflora_gallery_001.jpg",
+      "host_plants/Thunbergia_grandiflora/Thunbergia_grandiflora_gallery_002.jpg"
+    ]
+  },
+  "Hydnocarpus_pentandrus": {
+    "plant_scientific": "Hydnocarpus pentandrus",
+    "plant_common": "",
+    "plant_family": "Achariaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Achariaceae",
+      "Genus": "Hydnocarpus",
+      "Species": "pentandrus"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/hydnocarpus-pentandrus",
+    "butterfly_species": [
+      "Cirrochroa thais",
+      "https://www.ifoundbutterflies.org/hydnocarpus-pentandrus"
+    ],
+    "images": [
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_hero.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_001.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_002.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_003.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_004.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_005.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_006.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_007.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_008.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_009.jpg",
+      "host_plants/Hydnocarpus_pentandrus/Hydnocarpus_pentandrus_gallery_010.jpg"
+    ]
+  },
+  "Achyranthes_aspera": {
+    "plant_scientific": "Achyranthes aspera",
+    "plant_common": "",
+    "plant_family": "Amaranthaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Amaranthaceae",
+      "Genus": "Achyranthes",
+      "Species": "aspera"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/achyranthes-aspera",
+    "butterfly_species": [
+      "Pseudocoladenia dan",
+      "Luthrodes pandava",
+      "Euchrysops cnejus",
+      "https://www.ifoundbutterflies.org/achyranthes-aspera"
+    ],
+    "images": [
+      "host_plants/Achyranthes_aspera/Achyranthes_aspera_hero.jpg",
+      "host_plants/Achyranthes_aspera/Achyranthes_aspera_gallery_001.jpg"
+    ]
+  }
+}
