@@ -390,13 +390,6 @@ def pull_logs_from_hf():
 
 def push_logs_to_hf():
     logging.info("Pushing sync logs to Hugging Face...")
-    # merge remote changes first so we don't accidentally overwrite
-    # another worker's new entries when running distributed jobs
-    try:
-        pull_logs_from_hf()
-    except Exception:
-        pass
-
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines = [json.dumps({"key": "header", "value": {"summary": "Sync progress logs"}})]

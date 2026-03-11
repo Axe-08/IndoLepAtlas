@@ -107,22 +107,11 @@ def release_hf_lock(slug):
 
 # ── HF upload ─────────────────────────────────────────────────────────────────
 
-def upload_host_plants_dir(host_plants_dir, slug=None):
+def upload_host_plants_dir(host_plants_dir):
     """
-    Upload a tree of host plant data to HuggingFace.
-
-    ``host_plants_dir`` may point to the top-level ``host_plants`` folder or
-    to any of its subdirectories (for example when uploading a single
-    species batch).  Images are pushed via Git LFS; JSON/JSONL files are
-    committed normally.  The local filesystem is not modified by this
-    helper; callers should remove directories after a successful upload if
-    desired.
-
-    When ``slug`` is supplied the commit summary will mention the plant
-    ("added {slug} plant").  If a subdirectory matching the slug exists we
-    restrict the upload to that folder so the file count in the message
-    reflects only the files actually added.  This mirrors the behaviour in
-    ``crawler_logged.upload_batch`` and keeps the HF history readable.
+    Upload entire host_plants/ tree to HF.
+    Images → LFS.  JSON / JSONL → regular files.
+    Does NOT delete local folder. Returns file count.
     """
     import hashlib
 
@@ -182,13 +171,8 @@ def upload_host_plants_dir(host_plants_dir, slug=None):
                              data=data, timeout=120).raise_for_status()
 
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
-    # customise the summary when a slug is known
-    if slug:
-        summary = f"added {slug} plant ({len(file_metadata)} files)"
-    else:
-        summary = f"Sync host_plants ({len(file_metadata)} files)"
     lines = [json.dumps({"key": "header",
-                         "value": {"summary": summary}})]
+                         "value": {"summary": f"Sync host_plants ({len(file_metadata)} files)"}})]
     for repo_path, meta in file_metadata.items():
         if meta['is_lfs']:
             lines.append(json.dumps({"key": "lfsFile",
@@ -260,22 +244,6 @@ def pull_logs_from_hf():
 
 
 def push_logs_to_hf():
-    """Push all three log files to HF.
-
-    Before writing we *pull* the remote copy and merge it with our local
-    mirror.  This makes the operation additive and prevents a second crawler
-    from clobbering the first one's progress when both are running
-    concurrently.  (The original implementation simply uploaded whatever
-    happened to be in the working directory at push time, so a later push
-    could erase entries added by another worker.)
-    """
-    # merge any changes that might have landed since we started crawling
-    try:
-        pull_logs_from_hf()
-    except Exception:
-        # if pulling fails we'll still attempt to push; errors will be logged
-        pass
-
     headers    = {"Authorization": f"Bearer {HF_TOKEN}"}
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines      = [json.dumps({"key": "header", "value": {"summary": "Sync plant logs"}})]
@@ -480,10 +448,7 @@ def run_plant_crawler(chunk=1, total_chunks=1):
                     raise Exception("Scraper returned failure.")
 
                 if hf_ready and img_count > 0:
-                    # upload only the folder for the current plant; the helper
-                    # itself will also restrict to the slug if necessary but
-                    # this makes the intent explicit.
-                    upload_host_plants_dir(os.path.join(host_plants_dir, slug), slug=slug)
+                    upload_host_plants_dir(host_plants_dir)
 
                 success_count     += 1
                 images_synced     += img_count
