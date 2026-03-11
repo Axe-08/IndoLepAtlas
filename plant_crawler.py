@@ -79,7 +79,7 @@ def try_acquire_hf_lock(slug):
     ])
     try:
         r = requests.post(
-            f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main/host_plants",
+            f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main",
             headers={**headers, "Content-Type": "application/x-ndjson"},
             data=body.encode('utf-8'), timeout=30,
         )
@@ -97,7 +97,7 @@ def release_hf_lock(slug):
     ])
     try:
         requests.post(
-            f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main/host_plants",
+            f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main",
             headers={**headers, "Content-Type": "application/x-ndjson"},
             data=body.encode('utf-8'), timeout=30,
         )
@@ -181,7 +181,7 @@ def upload_host_plants_dir(host_plants_dir, slug=None):
                 requests.put(up['href'], headers=up.get('header', {}),
                              data=data, timeout=120).raise_for_status()
 
-    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main/host_plants"
+    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     # customise the summary when a slug is known
     if slug:
         summary = f"added {slug} plant ({len(file_metadata)} files)"
@@ -277,7 +277,7 @@ def push_logs_to_hf():
         pass
 
     headers    = {"Authorization": f"Bearer {HF_TOKEN}"}
-    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main/host_plants"
+    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines      = [json.dumps({"key": "header", "value": {"summary": "Sync plant logs"}})]
     for log_file in [PLANT_LIST_LOG, PLANT_COMPLETED_LOG, PLANT_FAILED_LOG]:
         if os.path.exists(log_file):
