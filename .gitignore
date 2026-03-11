@@ -34,11 +34,14 @@ MANIFEST
 # Scraping data outputs (local micro-batches)
 dataset_batch/
 dataset_test_run/
+host_plants/
 *.jsonl
+*.log
 
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+
 
