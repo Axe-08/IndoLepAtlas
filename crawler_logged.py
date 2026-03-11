@@ -34,8 +34,6 @@ FAILED_LOG = "failed_species.log"
 SPECIES_LIST_LOG = "species_list.log"
 # Tracks every slug we have attempted a host-plant backfill on.
 # A slug is written here after every attempt (success OR "no plants on page")
-# so we never hit the same blank page twice.
-HP_DONE_LOG = "host_plants_done.log"
 
 CIRCUIT_BREAKER_THRESHOLD = 10
 CIRCUIT_BREAKER_PAUSE = 1800  # 30 minutes
@@ -112,41 +110,6 @@ def release_hf_lock(slug):
         )
     except Exception as e:
         logging.debug(f"Could not release HF lock for {slug}: {e}")
-
-
-# ── Host-plant backfill helpers ────────────────────────────────────────────────
-
-
-def load_hp_done():
-    """Return set of slugs already attempted for host-plant backfill."""
-    if not os.path.exists(HP_DONE_LOG):
-        return set()
-    with open(HP_DONE_LOG, "r") as f:
-        return {line.strip() for line in f if line.strip()}
-
-
-def mark_hp_done(slug):
-    """Append slug to HP_DONE_LOG so we never retry it."""
-    with open(HP_DONE_LOG, "a") as f:
-        f.write(f"{slug}\n")
-
-
-def slugs_in_registry(host_plants_dir):
-    """
-    Read host_plants/registry.json and return the set of species slugs that
-    already have at least one host plant entry recorded.
-    Registry entries look like "Papilio paris"; converted to "Papilio-paris".
-    """
-    registry_path = os.path.join(host_plants_dir, "registry.json")
-    if not os.path.exists(registry_path):
-        return set()
-    with open(registry_path, "r", encoding="utf-8") as f:
-        registry = json.load(f)
-    result = set()
-    for plant_data in registry.values():
-        for name in plant_data.get("butterfly_species", []):
-            result.add(name.replace(" ", "-"))
-    return result
 
 
 # ── HF upload helpers ──────────────────────────────────────────────────────────
@@ -263,125 +226,6 @@ def upload_batch(batch_dir, slug):
     shutil.rmtree(batch_dir)
     return len(files_list)
 
-
-def upload_host_plants_dir(host_plants_dir):
-    """
-    Upload the entire host_plants/ tree to HF (images via LFS, JSON/JSONL as
-    regular files). Does NOT delete the local folder. Returns file count.
-    """
-    import hashlib
-
-    if not os.path.exists(host_plants_dir):
-        return 0
-
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    lfs_objects = []
-    file_metadata = {}
-
-    for root, dirs, files in os.walk(host_plants_dir):
-        dirs[:] = [d for d in dirs if not d.startswith(".")]
-        for filename in files:
-            if filename.startswith("."):
-                continue
-            filepath = os.path.join(root, filename)
-            rel_path = os.path.relpath(filepath, os.path.dirname(host_plants_dir))
-            repo_path = rel_path.replace(os.sep, "/")
-            with open(filepath, "rb") as f:
-                content = f.read()
-            size = len(content)
-            sha256 = hashlib.sha256(content).hexdigest()
-            is_lfs = filename.lower().endswith((".jpg", ".jpeg", ".png"))
-            file_metadata[repo_path] = {
-                "content": content,
-                "size": size,
-                "sha256": sha256,
-                "is_lfs": is_lfs,
-            }
-            if is_lfs:
-                lfs_objects.append({"oid": sha256, "size": size})
-
-    if not file_metadata:
-        return 0
-
-    if lfs_objects:
-        lfs_url = (
-            f"https://huggingface.co/datasets/{REPO_ID}.git/info/lfs/objects/batch"
-        )
-        resp = requests.post(
-            lfs_url,
-            headers={
-                **headers,
-                "Content-Type": "application/vnd.git-lfs+json",
-                "Accept": "application/vnd.git-lfs+json",
-            },
-            json={
-                "operation": "upload",
-                "transfers": ["basic"],
-                "objects": lfs_objects,
-            },
-            timeout=60,
-        )
-        resp.raise_for_status()
-        for obj in resp.json().get("objects", []):
-            if "actions" in obj and "upload" in obj["actions"]:
-                up = obj["actions"]["upload"]
-                data = next(
-                    m["content"]
-                    for m in file_metadata.values()
-                    if m["sha256"] == obj["oid"]
-                )
-                requests.put(
-                    up["href"], headers=up.get("header", {}), data=data, timeout=120
-                ).raise_for_status()
-
-    commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
-    lines = [
-        json.dumps(
-            {
-                "key": "header",
-                "value": {"summary": f"Sync host_plants ({len(file_metadata)} files)"},
-            }
-        )
-    ]
-    for repo_path, meta in file_metadata.items():
-        if meta["is_lfs"]:
-            lines.append(
-                json.dumps(
-                    {
-                        "key": "lfsFile",
-                        "value": {
-                            "path": repo_path,
-                            "algo": "sha256",
-                            "oid": meta["sha256"],
-                            "size": meta["size"],
-                        },
-                    }
-                )
-            )
-        else:
-            b64 = base64.b64encode(meta["content"]).decode("ascii")
-            lines.append(
-                json.dumps(
-                    {
-                        "key": "file",
-                        "value": {
-                            "path": repo_path,
-                            "encoding": "base64",
-                            "content": b64,
-                        },
-                    }
-                )
-            )
-
-    requests.post(
-        commit_url,
-        headers={**headers, "Content-Type": "application/x-ndjson"},
-        data="\n".join(lines).encode("utf-8"),
-        timeout=120,
-    ).raise_for_status()
-
-    logging.info(f"Uploaded {len(file_metadata)} host plant file(s) to HF.")
-    return len(file_metadata)
 
 
 def reupload_existing_batches(master_dir):
@@ -516,7 +360,7 @@ def load_completed_species():
 def pull_logs_from_hf():
     logging.info("Pulling sync logs from Hugging Face...")
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    for log_file in [COMPLETED_LOG, FAILED_LOG, SPECIES_LIST_LOG, HP_DONE_LOG]:
+    for log_file in [COMPLETED_LOG, FAILED_LOG, SPECIES_LIST_LOG]:
         url = f"https://huggingface.co/datasets/{REPO_ID}/resolve/main/{log_file}"
         try:
             resp = requests.get(url, headers=headers, timeout=10)
@@ -549,7 +393,7 @@ def push_logs_to_hf():
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines = [json.dumps({"key": "header", "value": {"summary": "Sync progress logs"}})]
-    for log_file in [COMPLETED_LOG, FAILED_LOG, SPECIES_LIST_LOG, HP_DONE_LOG]:
+    for log_file in [COMPLETED_LOG, FAILED_LOG, SPECIES_LIST_LOG]:
         if os.path.exists(log_file):
             with open(log_file, "rb") as f:
                 content = f.read()
@@ -586,9 +430,7 @@ def run_crawler(chunk=1, total_chunks=1):
     logging.info(f"Starting production crawler (Chunk {chunk}/{total_chunks})...")
 
     master_dir = "dataset_test_run"
-    host_plants_dir = "host_plants"
     os.makedirs(master_dir, exist_ok=True)
-    os.makedirs(host_plants_dir, exist_ok=True)
 
     # Phase 0: Verify HF repo
     hf_ready = verify_hf_repo()
@@ -602,20 +444,6 @@ def run_crawler(chunk=1, total_chunks=1):
     # Phase 2: Load state
     completed = load_completed_species()
     logging.info(f"Loaded {len(completed)} already-completed species.")
-
-    # Phase 2b: Work out which completed species need a host-plant backfill.
-    # We cross-check three things:
-    #   (a) registry.json  — species already confirmed to have plant data uploaded
-    #   (b) HP_DONE_LOG    — species we already attempted (even if page had no plants)
-    # Anything in `completed` but not in (a) or (b) gets queued for backfill.
-    already_in_registry = slugs_in_registry(host_plants_dir)
-    already_attempted = load_hp_done()
-    needs_hp_backfill = completed - already_in_registry - already_attempted
-    logging.info(
-        f"Host plant backfill: {len(already_in_registry)} in registry, "
-        f"{len(already_attempted)} already attempted, "
-        f"{len(needs_hp_backfill)} queued."
-    )
 
     # Phase 3: Get full species link list + build slug->url map
     all_links = get_species_links(limit=None)
@@ -665,9 +493,7 @@ def run_crawler(chunk=1, total_chunks=1):
                 success, dl_count = scrape_species_page(
                     url,
                     output_dir=batch_dir,
-                    host_plants_dir=host_plants_dir,
                     pbar=pbar,
-                    host_plants_only=False,  # full scrape
                 )
                 if not success:
                     raise Exception("Scraper returned failure.")
@@ -675,8 +501,6 @@ def run_crawler(chunk=1, total_chunks=1):
                 if hf_ready:
                     if os.path.exists(batch_dir):
                         upload_batch(batch_dir, slug)
-                    if dl_count > 0:
-                        upload_host_plants_dir(host_plants_dir)
 
                 success_count += 1
                 images_synced += dl_count
@@ -685,7 +509,7 @@ def run_crawler(chunk=1, total_chunks=1):
                 with open(COMPLETED_LOG, "a") as f:
                     f.write(f"{slug}\n")
                 # Mark host plants as attempted so Pass 2 skips this slug
-                mark_hp_done(slug)
+
 
             except Exception as e:
                 fail_count += 1
@@ -714,94 +538,6 @@ def run_crawler(chunk=1, total_chunks=1):
                 {"OK": success_count, "Fail": fail_count, "Imgs": images_synced}
             )
             time.sleep(3)
-
-        # ════════════════════════════════════════════════════════════════════
-        # PASS 2 — host-plant-only backfill for previously completed species
-        #
-        # Uses host_plants_only=True so scraper_prototype:
-        #   • fetches the page HTML once
-        #   • skips ALL adult/early image downloads
-        #   • only runs download_host_plant_images()
-        #   • returns immediately with (True, 0) if the page has no plant images
-        # ════════════════════════════════════════════════════════════════════
-
-        # Re-read registry/log after Pass 1 — it may have grown
-        already_in_registry = slugs_in_registry(host_plants_dir)
-        already_attempted = load_hp_done()
-        backfill_slugs = needs_hp_backfill - already_in_registry - already_attempted
-
-        # Scope to this chunk's slugs when running distributed
-        if total_chunks > 1:
-            chunk_slugs = {u.rstrip("/").split("/")[-1] for u in links}
-            backfill_slugs = backfill_slugs & chunk_slugs
-
-        if not backfill_slugs:
-            logging.info("No host-plant backfill needed for this chunk.")
-        else:
-            logging.info(
-                f"Starting host-plant backfill for {len(backfill_slugs)} species "
-                f"(page fetch + host plant images only — no adult/early re-download)."
-            )
-            hp_ok = hp_fail = hp_none = hp_locked = 0
-
-            pbar2 = tqdm(sorted(backfill_slugs), desc="HP backfill", unit="species")
-            for slug in pbar2:
-                url = slug_to_url.get(slug)
-                if not url:
-                    logging.warning(f"No URL found for {slug}, skipping.")
-                    mark_hp_done(slug)
-                    continue
-
-                if hf_ready:
-                    if not try_acquire_hf_lock(slug):
-                        logging.debug(f"HP backfill: {slug} locked, skipping.")
-                        hp_locked += 1
-                        continue
-
-                try:
-                    # host_plants_only=True — scraper skips adult/early images entirely
-                    success, hp_count = scrape_species_page(
-                        url,
-                        output_dir=None,  # unused when host_plants_only=True
-                        host_plants_dir=host_plants_dir,
-                        pbar=pbar2,
-                        host_plants_only=True,
-                    )
-
-                    if not success:
-                        raise Exception("Scraper returned failure during backfill.")
-
-                    if hp_count == 0:
-                        # Page genuinely has no host plant images — log and move on
-                        logging.debug(f"HP backfill {slug}: no plant images on page.")
-                        hp_none += 1
-                    else:
-                        if hf_ready:
-                            upload_host_plants_dir(host_plants_dir)
-                        images_synced += hp_count
-                        hp_ok += 1
-                        logging.debug(f"HP backfill {slug}: {hp_count} image(s) added.")
-
-                except Exception as e:
-                    hp_fail += 1
-                    logging.debug(f"HP backfill error for {slug}: {e}")
-
-                finally:
-                    # Always mark attempted — success, failure, or no-data
-                    mark_hp_done(slug)
-                    if hf_ready:
-                        release_hf_lock(slug)
-
-                pbar2.set_postfix(
-                    {"OK": hp_ok, "None": hp_none, "Fail": hp_fail, "Locked": hp_locked}
-                )
-                time.sleep(3)
-
-            logging.info(
-                f"HP backfill complete — "
-                f"downloaded: {hp_ok}, no plants on page: {hp_none}, "
-                f"errors: {hp_fail}, locked/skipped: {hp_locked}"
-            )
 
         logging.info(
             f"Crawler complete! "

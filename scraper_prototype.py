@@ -117,174 +117,6 @@ def get_images_from_tab(soup, tab_id, life_stage):
 
 
 # ──────────────────────────────────────────────
-# Host plant helpers
-# ──────────────────────────────────────────────
-
-
-def get_host_plant_images(soup):
-    """
-    Extract image URLs from the Larval Host Plants tab (id='laraval').
-    Returns list of {'url': ..., 'photographer_or_id': ...}
-    """
-    images = []
-    larval_div = soup.find("div", id="laraval")
-    if not larval_div:
-        return images
-    for a in larval_div.select("a.colorbox"):
-        img_url = a.get("href")
-        if img_url and img_url.startswith("/"):
-            img_url = "https://www.ifoundbutterflies.org" + img_url
-        if img_url:
-            images.append(
-                {
-                    "url": img_url,
-                    "photographer_or_id": extract_image_id(a),
-                }
-            )
-    return images
-
-
-def extract_host_plant_names(soup):
-    """
-    Parse individual plant names from the Larval Host Plants tab text.
-    Returns a list of cleaned plant name strings.
-    """
-    larval_div = soup.find("div", id="laraval")
-    if not larval_div:
-        return []
-    text = larval_div.get_text(separator=" ", strip=True)
-    raw = re.split(r"[,;]", text)
-    plants = []
-    for r in raw:
-        name = re.sub(r"\(.*?\)", "", r).strip()
-        name = re.sub(r"\s+", " ", name).strip()
-        if 2 < len(name) < 80:
-            plants.append(name)
-    return plants
-
-
-def load_host_plant_registry(registry_path):
-    """Load shared host plant registry from JSON, or return empty dict."""
-    if os.path.exists(registry_path):
-        with open(registry_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-
-def save_host_plant_registry(registry, registry_path):
-    """Persist the host plant registry to disk."""
-    os.makedirs(os.path.dirname(os.path.abspath(registry_path)), exist_ok=True)
-    with open(registry_path, "w", encoding="utf-8") as f:
-        json.dump(registry, f, indent=2, ensure_ascii=False)
-
-
-def download_host_plant_images(
-    soup,
-    scientific_name,
-    genus,
-    species,
-    host_plants_dir,
-    registry_path,
-    common_meta=None,
-):
-    """
-    Download all images from the Larval Host Plants tab (id='laraval').
-
-    Folder structure:
-        host_plants/
-            {PlantKey}/
-                {PlantKey}_{ScientificName}_{NNN}.jpg
-            registry.json       <- shared, append-only across all species
-            metadata.jsonl      <- appended across all species
-
-    Returns:
-        list of metadata record dicts (one per downloaded image).
-        Returns empty list immediately if the tab has no images at all —
-        no network requests are made in that case.
-    """
-    from tqdm import tqdm
-
-    images = get_host_plant_images(soup)
-    plant_names = extract_host_plant_names(soup)
-
-    # ── Early-exit: no host plant images on this page ──────────────────────
-    if not images:
-        logging.debug(f"{scientific_name}: no host plant images found on page.")
-        return []
-
-    registry = load_host_plant_registry(registry_path)
-    records = []
-
-    for i, img_data in enumerate(
-        tqdm(images, desc=f"Host plants {scientific_name}", leave=False, unit="img")
-    ):
-        img_url = img_data["url"]
-        plant_name = plant_names[i] if i < len(plant_names) else "Unknown_Host_Plant"
-        plant_key = re.sub(r"\s+", "_", plant_name.strip())
-        plant_key = re.sub(r"[^A-Za-z0-9_\-]", "", plant_key)
-
-        plant_dir = os.path.join(host_plants_dir, plant_key)
-        os.makedirs(plant_dir, exist_ok=True)
-
-        ext = os.path.splitext(urlparse(img_url).path)[1] or ".jpg"
-        filename = f"{plant_key}_{scientific_name}_{i+1:03d}{ext}"
-        filepath = os.path.join(plant_dir, filename)
-        hf_path = f"host_plants/{plant_key}/{filename}"
-
-        # Download (skip if already on disk)
-        if not os.path.exists(filepath):
-            try:
-                for attempt in range(3):
-                    try:
-                        r = requests.get(img_url, stream=True, timeout=30)
-                        r.raise_for_status()
-                        with open(filepath, "wb") as f:
-                            for chunk in r.iter_content(1024):
-                                f.write(chunk)
-                        break
-                    except requests.exceptions.RequestException as e:
-                        logging.warning(
-                            f"Attempt {attempt+1} failed for {img_url}: {e}"
-                        )
-                        if attempt == 2:
-                            raise
-                        time.sleep(2)
-            except Exception as e:
-                logging.error(f"Failed to download host plant image {img_url}: {e}")
-                continue
-            time.sleep(1)
-
-        # Update shared registry (append-only per plant)
-        butterfly_entry = f"{genus} {species}"
-        if plant_key not in registry:
-            registry[plant_key] = {
-                "plant_name": plant_name,
-                "butterfly_species": [],
-                "images": [],
-            }
-        if butterfly_entry not in registry[plant_key]["butterfly_species"]:
-            registry[plant_key]["butterfly_species"].append(butterfly_entry)
-        if hf_path not in registry[plant_key]["images"]:
-            registry[plant_key]["images"].append(hf_path)
-
-        record = {
-            "file_name": hf_path,
-            "life_stage": "Host Plant",
-            "plant_name": plant_name,
-            "plant_key": plant_key,
-            "image_id": img_data["photographer_or_id"],
-            "original_url": img_url,
-        }
-        if common_meta:
-            record.update(common_meta)
-        records.append(record)
-
-    save_host_plant_registry(registry, registry_path)
-    logging.info(f"{scientific_name}: {len(records)} host plant image(s) downloaded")
-    return records
-
-
-# ──────────────────────────────────────────────
 # Main scrape function
 # ──────────────────────────────────────────────
 
@@ -439,26 +271,9 @@ def scrape_species_page(
         **taxonomy,
         **tab_metadata,
     }
-    registry_path = os.path.join(host_plants_dir, "registry.json")
-    host_plant_records = download_host_plant_images(
-        soup,
-        scientific_name,
-        genus,
-        species,
-        host_plants_dir,
-        registry_path,
-        common_meta=common_meta,
-    )
-    downloaded_count += len(host_plant_records)
-
-    if host_plant_records:
-        hp_meta_file = os.path.join(host_plants_dir, "metadata.jsonl")
-        with open(hp_meta_file, "a", encoding="utf-8") as f:
-            for record in host_plant_records:
-                f.write(json.dumps(record, ensure_ascii=False) + "\n")
-
+    
     logging.debug(
-        f"Scrape complete. output_dir='{output_dir}', host_plants='{host_plants_dir}'"
+        f"Scrape complete. output_dir='{output_dir}'"
     )
     return True, downloaded_count
 
@@ -466,5 +281,5 @@ def scrape_species_page(
 if __name__ == "__main__":
     test_url = "https://www.ifoundbutterflies.org/Papilio-paris"
     scrape_species_page(
-        test_url, output_dir="dataset_batch", host_plants_dir="host_plants"
+        test_url, output_dir="dataset_batch"
     )
