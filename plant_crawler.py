@@ -107,7 +107,7 @@ def release_hf_lock(slug):
 
 # ── HF upload ─────────────────────────────────────────────────────────────────
 
-def upload_host_plants_dir(host_plants_dir):
+def upload_host_plants_dir(host_plants_dir, slug=None):
     """
     Upload entire host_plants/ tree to HF.
     Images → LFS.  JSON / JSONL → regular files.
@@ -294,7 +294,7 @@ def reupload_existing_batches(master_dir):
     for name in pbar:
         slug = name
         try:
-            count = upload_host_plants_dir(os.path.join(master_dir, name), slug)
+            count = upload_host_plants_dir(master_dir, slug)
             uploaded += 1
             files_uploaded += count
             pbar.set_postfix({"Uploaded": uploaded, "Files": files_uploaded})
@@ -448,7 +448,7 @@ def run_plant_crawler(chunk=1, total_chunks=1):
                     raise Exception("Scraper returned failure.")
 
                 if hf_ready and img_count > 0:
-                    upload_host_plants_dir(host_plants_dir)
+                    upload_host_plants_dir(host_plants_dir, slug)
 
                 success_count     += 1
                 images_synced     += img_count

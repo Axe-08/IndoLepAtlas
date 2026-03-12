@@ -829,5 +829,145 @@
       "host_plants/Achyranthes_aspera/Achyranthes_aspera_hero.jpg",
       "host_plants/Achyranthes_aspera/Achyranthes_aspera_gallery_001.jpg"
     ]
+  },
+  "Albizia_procera": {
+    "plant_scientific": "Albizia procera",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Albizia",
+      "Species": "procera"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/albizia-procera",
+    "butterfly_species": [
+      "Eurema hecabe",
+      "https://www.ifoundbutterflies.org/albizia-procera"
+    ],
+    "images": [
+      "host_plants/Albizia_procera/Albizia_procera_hero.jpg",
+      "host_plants/Albizia_procera/Albizia_procera_gallery_001.jpg",
+      "host_plants/Albizia_procera/Albizia_procera_gallery_002.jpg"
+    ]
+  },
+  "Alysicarpus_longifolius": {
+    "plant_scientific": "Alysicarpus longifolius",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Alysicarpus",
+      "Species": "longifolius"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/alysicarpus-longifolius",
+    "butterfly_species": [
+      "https://www.ifoundbutterflies.org/alysicarpus-longifolius"
+    ],
+    "images": [
+      "host_plants/Alysicarpus_longifolius/Alysicarpus_longifolius_hero.jpg"
+    ]
+  },
+  "Alysicarpus_vaginalis": {
+    "plant_scientific": "Alysicarpus vaginalis",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Alysicarpus",
+      "Species": "vaginalis"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/alysicarpus-vaginalis",
+    "butterfly_species": [
+      "Zizina otis",
+      "https://www.ifoundbutterflies.org/alysicarpus-vaginalis"
+    ],
+    "images": [
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_hero.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_001.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_002.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_003.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_004.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_005.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_006.jpg",
+      "host_plants/Alysicarpus_vaginalis/Alysicarpus_vaginalis_gallery_007.jpg"
+    ]
+  },
+  "Gomphocarpus_physocarpus": {
+    "plant_scientific": "Gomphocarpus physocarpus",
+    "plant_common": "",
+    "plant_family": "Apocynaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Apocynaceae",
+      "Genus": "Gomphocarpus",
+      "Species": "physocarpus"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/gomphocarpus-physocarpus",
+    "butterfly_species": [
+      "Danaus chrysippus",
+      "https://www.ifoundbutterflies.org/gomphocarpus-physocarpus"
+    ],
+    "images": [
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_hero.jpg",
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_gallery_001.jpg",
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_gallery_002.jpg",
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_gallery_003.jpg",
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_gallery_004.jpg",
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_gallery_005.jpg",
+      "host_plants/Gomphocarpus_physocarpus/Gomphocarpus_physocarpus_gallery_006.jpg"
+    ]
+  },
+  "Gymnema_sylvestre": {
+    "plant_scientific": "Gymnema sylvestre",
+    "plant_common": "",
+    "plant_family": "Apocynaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Apocynaceae",
+      "Genus": "Gymnema",
+      "Species": "sylvestre"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/gymnema-sylvestre",
+    "butterfly_species": [
+      "Euploea sylvester",
+      "Euploea core",
+      "Parantica aglea",
+      "https://www.ifoundbutterflies.org/gymnema-sylvestre"
+    ],
+    "images": [
+      "host_plants/Gymnema_sylvestre/Gymnema_sylvestre_hero.jpg",
+      "host_plants/Gymnema_sylvestre/Gymnema_sylvestre_gallery_001.jpg"
+    ]
+  },
+  "Hemidesmus_indicus": {
+    "plant_scientific": "Hemidesmus indicus",
+    "plant_common": "",
+    "plant_family": "Apocynaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Apocynaceae",
+      "Genus": "Hemidesmus",
+      "Species": "indicus"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/hemidesmus-indicus",
+    "butterfly_species": [
+      "Euploea core",
+      "https://www.ifoundbutterflies.org/hemidesmus-indicus"
+    ],
+    "images": [
+      "host_plants/Hemidesmus_indicus/Hemidesmus_indicus_hero.jpg",
+      "host_plants/Hemidesmus_indicus/Hemidesmus_indicus_gallery_001.jpg",
+      "host_plants/Hemidesmus_indicus/Hemidesmus_indicus_gallery_002.jpg",
+      "host_plants/Hemidesmus_indicus/Hemidesmus_indicus_gallery_003.jpg"
+    ]
   }
 }
