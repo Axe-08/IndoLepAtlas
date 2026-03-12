@@ -35,10 +35,16 @@ MANIFEST
 dataset_batch/
 dataset_test_run/
 host_plants/
-*.jsonl
+# Project-specific data and environments
+data/
+annotations/
+conda_env/
+GroundingDINO/
+*.pth
+*.pid
+verification_viz_new/
+butterfly_adult_viz/
 *.log
-
-# IDEs
 .idea/
 .vscode/
 *.swp
