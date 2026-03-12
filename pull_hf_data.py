@@ -156,10 +156,10 @@ def pull_dataset(
         download_threads: parallel downloads per species
     """
     if dataset == "butterflies":
-        hf_parent = "data"
+        hf_parent = "data/butterflies/raw"
         local_parent = os.path.join(base_dir, "data", "butterflies", "raw")
     elif dataset == "plants":
-        hf_parent = "host_plants"
+        hf_parent = "data/plants/raw"
         local_parent = os.path.join(base_dir, "data", "plants", "raw")
     else:
         raise ValueError(f"Unknown dataset: {dataset}")
@@ -245,7 +245,7 @@ def pull_dataset(
 def pull_root_metadata(dataset: str, base_dir: str):
     """Download root-level metadata files (registry.json, metadata.jsonl)."""
     if dataset == "plants":
-        root_files = ["host_plants/registry.json", "host_plants/metadata.jsonl"]
+        root_files = ["data/plants/raw/registry.json", "data/plants/raw/metadata.jsonl"]
         local_parent = os.path.join(base_dir, "data", "plants", "raw")
     elif dataset == "butterflies":
         # Butterfly metadata is per-species (inside each dir), no root files

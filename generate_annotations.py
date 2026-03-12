@@ -246,7 +246,10 @@ def annotate_dataset(
                 from PIL import Image
                 img = Image.open(image_path)
                 w, h = img.size
-            except Exception:
+                if w == 1000 and h == 1000:
+                    logger.debug(f"Image {image_path} returned 1000x1000 - verifying...")
+            except Exception as e:
+                logger.warning(f"Failed to read size for {image_path}: {e}")
                 w, h = 700, 600  # fallback
 
             image_id = processed + skipped + 1
