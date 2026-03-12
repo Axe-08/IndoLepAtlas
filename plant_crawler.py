@@ -137,8 +137,9 @@ def upload_host_plants_dir(host_plants_dir, slug=None):
             if filename.startswith('.'):
                 continue
             filepath  = os.path.join(root, filename)
-            rel_path  = os.path.relpath(filepath, os.path.dirname(host_plants_dir))
-            repo_path = rel_path.replace(os.sep, '/')
+            # Map local host_plants/ paths to clean HF structure: data/plants/raw/
+            rel_to_root = os.path.relpath(filepath, host_plants_dir)
+            repo_path = f"data/plants/raw/{rel_to_root}".replace(os.sep, '/')
             with open(filepath, 'rb') as f:
                 content = f.read()
             size   = len(content)
@@ -172,7 +173,7 @@ def upload_host_plants_dir(host_plants_dir, slug=None):
 
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines = [json.dumps({"key": "header",
-                         "value": {"summary": f"Sync host_plants ({len(file_metadata)} files)"}})]
+                         "value": {"summary": f"Sync plants/raw ({len(file_metadata)} files)"}})]
     for repo_path, meta in file_metadata.items():
         if meta['is_lfs']:
             lines.append(json.dumps({"key": "lfsFile",
