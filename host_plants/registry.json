@@ -969,5 +969,434 @@
       "host_plants/Hemidesmus_indicus/Hemidesmus_indicus_gallery_002.jpg",
       "host_plants/Hemidesmus_indicus/Hemidesmus_indicus_gallery_003.jpg"
     ]
+  },
+  "Libidibia_coriaria": {
+    "plant_scientific": "Libidibia coriaria",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Libidibia",
+      "Species": "coriaria"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/libidibia-coriaria",
+    "butterfly_species": [
+      "Charaxes bharata",
+      "Eurema hecabe",
+      "Badamia exclamationis",
+      "Hasora badra",
+      "Prosotas dubiosa",
+      "Prosotas nora",
+      "Danaus genutia",
+      "Euploea core",
+      "Hypolimnas bolina",
+      "Hypolimnas misippus",
+      "Parantica aglea",
+      "Tirumala limniace",
+      "Graphium agamemnon",
+      "Graphium doson",
+      "Delias eucharis",
+      "https://www.ifoundbutterflies.org/libidibia-coriaria"
+    ],
+    "images": [
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_hero.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_001.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_002.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_003.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_004.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_005.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_006.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_007.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_008.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_009.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_010.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_011.jpg",
+      "host_plants/Libidibia_coriaria/Libidibia_coriaria_gallery_012.jpg"
+    ]
+  },
+  "Lotus_corniculatus": {
+    "plant_scientific": "Lotus corniculatus",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Lotus",
+      "Species": "corniculatus"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/lotus-corniculatus",
+    "butterfly_species": [
+      "Everes argiades",
+      "Lacturnea lacturnus",
+      "Freyeria putli",
+      "Freyeria trochylus",
+      "Colias erate",
+      "Colias fieldii",
+      "https://www.ifoundbutterflies.org/lotus-corniculatus"
+    ],
+    "images": [
+      "host_plants/Lotus_corniculatus/Lotus_corniculatus_hero.jpg",
+      "host_plants/Lotus_corniculatus/Lotus_corniculatus_gallery_001.jpg",
+      "host_plants/Lotus_corniculatus/Lotus_corniculatus_gallery_002.jpg",
+      "host_plants/Lotus_corniculatus/Lotus_corniculatus_gallery_003.jpg",
+      "host_plants/Lotus_corniculatus/Lotus_corniculatus_gallery_004.jpg",
+      "host_plants/Lotus_corniculatus/Lotus_corniculatus_gallery_005.jpg"
+    ]
+  },
+  "Macroptilium_lathyroides": {
+    "plant_scientific": "Macroptilium lathyroides",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Macroptilium",
+      "Species": "lathyroides"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/macroptilium-lathyroides",
+    "butterfly_species": [
+      "Leptotes plinius",
+      "https://www.ifoundbutterflies.org/macroptilium-lathyroides"
+    ],
+    "images": [
+      "host_plants/Macroptilium_lathyroides/Macroptilium_lathyroides_hero.jpg",
+      "host_plants/Macroptilium_lathyroides/Macroptilium_lathyroides_gallery_001.jpg",
+      "host_plants/Macroptilium_lathyroides/Macroptilium_lathyroides_gallery_002.jpg",
+      "host_plants/Macroptilium_lathyroides/Macroptilium_lathyroides_gallery_003.jpg",
+      "host_plants/Macroptilium_lathyroides/Macroptilium_lathyroides_gallery_004.jpg"
+    ]
+  },
+  "Mezoneuron_cucullatum": {
+    "plant_scientific": "Mezoneuron cucullatum",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Mezoneuron",
+      "Species": "cucullatum"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/mezoneuron-cucullatum",
+    "butterfly_species": [
+      "Eurema blanda",
+      "https://www.ifoundbutterflies.org/mezoneuron-cucullatum"
+    ],
+    "images": [
+      "host_plants/Mezoneuron_cucullatum/Mezoneuron_cucullatum_hero.jpg",
+      "host_plants/Mezoneuron_cucullatum/Mezoneuron_cucullatum_gallery_001.jpg"
+    ]
+  },
+  "Millettia_pachycarpa": {
+    "plant_scientific": "Millettia pachycarpa",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Millettia",
+      "Species": "pachycarpa"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/millettia-pachycarpa",
+    "butterfly_species": [
+      "Hasora badra",
+      "https://www.ifoundbutterflies.org/millettia-pachycarpa"
+    ],
+    "images": [
+      "host_plants/Millettia_pachycarpa/Millettia_pachycarpa_hero.jpg",
+      "host_plants/Millettia_pachycarpa/Millettia_pachycarpa_gallery_001.jpg"
+    ]
+  },
+  "Mimosa_hamata": {
+    "plant_scientific": "Mimosa hamata",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Mimosa",
+      "Species": "hamata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/mimosa-hamata",
+    "butterfly_species": [
+      "Azanus ubaldus",
+      "Prosotas nora",
+      "https://www.ifoundbutterflies.org/mimosa-hamata"
+    ],
+    "images": [
+      "host_plants/Mimosa_hamata/Mimosa_hamata_hero.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_001.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_002.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_003.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_004.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_005.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_006.jpg",
+      "host_plants/Mimosa_hamata/Mimosa_hamata_gallery_007.jpg"
+    ]
+  },
+  "Mimosa_pudica": {
+    "plant_scientific": "Mimosa pudica",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Mimosa",
+      "Species": "pudica"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/mimosa-pudica",
+    "butterfly_species": [
+      "Prosotas dubiosa",
+      "Junonia hierta",
+      "Junonia orithya",
+      "Eurema hecabe",
+      "https://www.ifoundbutterflies.org/mimosa-pudica"
+    ],
+    "images": [
+      "host_plants/Mimosa_pudica/Mimosa_pudica_hero.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_001.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_002.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_003.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_004.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_005.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_006.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_007.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_008.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_009.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_010.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_011.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_012.jpg",
+      "host_plants/Mimosa_pudica/Mimosa_pudica_gallery_013.jpg"
+    ]
+  },
+  "Trifolium_repens": {
+    "plant_scientific": "Trifolium repens",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Trifolium",
+      "Species": "repens"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/trifolium-repens",
+    "butterfly_species": [
+      "Colias nilagiriensis",
+      "Lacturnea lacturnus",
+      "Danaus genutia",
+      "Papilio machaon",
+      "Aporia leucodice",
+      "https://www.ifoundbutterflies.org/trifolium-repens"
+    ],
+    "images": [
+      "host_plants/Trifolium_repens/Trifolium_repens_hero.jpg",
+      "host_plants/Trifolium_repens/Trifolium_repens_gallery_001.jpg"
+    ]
+  },
+  "Trigonella_emodi": {
+    "plant_scientific": "Trigonella emodi",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Trigonella",
+      "Species": "emodi"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/trigonella-emodi",
+    "butterfly_species": [
+      "Colias fieldii",
+      "https://www.ifoundbutterflies.org/trigonella-emodi"
+    ],
+    "images": [
+      "host_plants/Trigonella_emodi/Trigonella_emodi_hero.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_001.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_002.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_003.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_004.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_005.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_006.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_007.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_008.jpg",
+      "host_plants/Trigonella_emodi/Trigonella_emodi_gallery_009.jpg"
+    ]
+  },
+  "Vachellia_farnesiana": {
+    "plant_scientific": "Vachellia farnesiana",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Vachellia",
+      "Species": "farnesiana"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/vachellia-farnesiana",
+    "butterfly_species": [
+      "Azanus jesous",
+      "Azanus uranus",
+      "https://www.ifoundbutterflies.org/vachellia-farnesiana"
+    ],
+    "images": [
+      "host_plants/Vachellia_farnesiana/Vachellia_farnesiana_hero.jpg",
+      "host_plants/Vachellia_farnesiana/Vachellia_farnesiana_gallery_001.jpg",
+      "host_plants/Vachellia_farnesiana/Vachellia_farnesiana_gallery_002.jpg",
+      "host_plants/Vachellia_farnesiana/Vachellia_farnesiana_gallery_003.jpg",
+      "host_plants/Vachellia_farnesiana/Vachellia_farnesiana_gallery_004.jpg"
+    ]
+  },
+  "Vachellia_leucophloea": {
+    "plant_scientific": "Vachellia leucophloea",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Vachellia",
+      "Species": "leucophloea"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/vachellia-leucophloea",
+    "butterfly_species": [
+      "Azanus jesous",
+      "Azanus ubaldus",
+      "Azanus uranus",
+      "Prosotas dubiosa",
+      "Prosotas nora",
+      "Rapala iarbus",
+      "https://www.ifoundbutterflies.org/vachellia-leucophloea"
+    ],
+    "images": [
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_hero.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_001.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_002.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_003.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_004.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_005.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_006.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_007.jpg",
+      "host_plants/Vachellia_leucophloea/Vachellia_leucophloea_gallery_008.jpg"
+    ]
+  },
+  "Vachellia_nilotica": {
+    "plant_scientific": "Vachellia nilotica",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Vachellia",
+      "Species": "nilotica"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/vachellia-nilotica",
+    "butterfly_species": [
+      "Anthene lycaenina",
+      "Azanus ubaldus",
+      "Azanus uranus",
+      "Luthrodes pandava",
+      "Lachides parrhasius",
+      "Lacturnea lacturnus",
+      "Charaxes agrarius",
+      "https://www.ifoundbutterflies.org/vachellia-nilotica"
+    ],
+    "images": [
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_hero.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_001.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_002.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_003.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_004.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_005.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_006.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_007.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_008.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_009.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_010.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_011.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_012.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_013.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_014.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_015.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_016.jpg",
+      "host_plants/Vachellia_nilotica/Vachellia_nilotica_gallery_017.jpg"
+    ]
+  },
+  "Vigna_radiata": {
+    "plant_scientific": "Vigna radiata",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Vigna",
+      "Species": "radiata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/vigna-radiata",
+    "butterfly_species": [
+      "Euchrysops cnejus",
+      "Jamides celeno",
+      "Zizina otis",
+      "https://www.ifoundbutterflies.org/vigna-radiata"
+    ],
+    "images": [
+      "host_plants/Vigna_radiata/Vigna_radiata_hero.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_001.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_002.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_003.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_004.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_005.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_006.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_007.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_008.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_009.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_010.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_011.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_012.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_013.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_014.jpg",
+      "host_plants/Vigna_radiata/Vigna_radiata_gallery_015.jpg"
+    ]
+  },
+  "Vigna_unguiculata": {
+    "plant_scientific": "Vigna unguiculata",
+    "plant_common": "",
+    "plant_family": "Fabaceae",
+    "taxonomy": {
+      "Superfamily": "Plantae",
+      "Family": "Fabaceae",
+      "Genus": "Vigna",
+      "Species": "unguiculata"
+    },
+    "common_names": {},
+    "source_url": "https://www.ifoundbutterflies.org/vigna-unguiculata",
+    "butterfly_species": [
+      "Catochrysops strabo",
+      "Euchrysops cnejus",
+      "Lampides boeticus",
+      "Neptis hylas",
+      "https://www.ifoundbutterflies.org/vigna-unguiculata"
+    ],
+    "images": [
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_hero.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_001.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_002.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_003.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_004.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_005.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_006.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_007.jpg",
+      "host_plants/Vigna_unguiculata/Vigna_unguiculata_gallery_008.jpg"
+    ]
   }
 }

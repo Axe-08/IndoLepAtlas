@@ -24,8 +24,10 @@ import json
 import argparse
 import logging
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageFile
 
+# Prevent crashes on corrupted/truncated image files
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
