@@ -9,7 +9,7 @@ A large-scale computer vision dataset of Indian butterflies, moths, and their la
 | | Butterflies | Host Plants | Total |
 |---|---|---|---|
 | **Species** | ~967 | ~127 | ~1,094 |
-| **Images** | ~2,000+ | ~700+ | ~2,700+ |
+| **Images** | ~60,000+ | ~700+ | ~60,700+ |
 | **Source** | ifoundbutterflies.org | ifoundbutterflies.org | — |
 
 ## Motivation
