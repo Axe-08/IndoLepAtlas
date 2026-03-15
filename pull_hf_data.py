@@ -39,16 +39,32 @@ logger = logging.getLogger(__name__)
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 
+from huggingface_hub import HfApi
+
+api = HfApi(token=HF_TOKEN)
+
 def hf_headers():
     return {"Authorization": f"Bearer {HF_TOKEN}"} if HF_TOKEN else {}
 
-
 def list_hf_dir(path: str) -> list:
-    """List contents of a directory on HF repo."""
-    url = f"{API_BASE}/tree/main/{path}" if path else f"{API_BASE}/tree/main"
-    resp = requests.get(url, headers=hf_headers(), timeout=60)
-    resp.raise_for_status()
-    return resp.json()
+    """List contents of a directory on HF repo using HfApi."""
+    try:
+        # list_repo_tree handles pagination automatically
+        items = api.list_repo_tree(repo_id=REPO_ID, path_in_repo=path, repo_type="dataset")
+        result = []
+        for item in items:
+            # Species folders don't have a 'size' attribute in RepoFolder objects
+            # whereas RepoFile objects have a 'size'
+            is_dir = not hasattr(item, "size")
+            result.append({
+                "path": item.path,
+                "type": "directory" if is_dir else "file",
+                "size": getattr(item, "size", 0)
+            })
+        return result
+    except Exception as e:
+        logger.error(f"Failed to list {path}: {e}")
+        return []
 
 
 def download_file(remote_path: str, local_path: str, retries: int = 3):

@@ -50,4 +50,10 @@ butterfly_adult_viz/
 *.swp
 *.swo
 
-
+# Exclude final data/image formats
+*.jpg
+*.jpeg
+*.png
+*.csv
+*.json
+splits/
