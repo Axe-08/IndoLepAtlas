@@ -107,7 +107,7 @@ def release_hf_lock(slug):
 
 # ── HF upload ─────────────────────────────────────────────────────────────────
 
-def upload_host_plants_dir(host_plants_dir):
+def upload_host_plants_dir(host_plants_dir, slug=None):
     """
     Upload entire host_plants/ tree to HF.
     Images → LFS.  JSON / JSONL → regular files.
@@ -137,8 +137,9 @@ def upload_host_plants_dir(host_plants_dir):
             if filename.startswith('.'):
                 continue
             filepath  = os.path.join(root, filename)
-            rel_path  = os.path.relpath(filepath, os.path.dirname(host_plants_dir))
-            repo_path = rel_path.replace(os.sep, '/')
+            # Map local host_plants/ paths to clean HF structure: data/plants/raw/
+            rel_to_root = os.path.relpath(filepath, host_plants_dir)
+            repo_path = f"data/plants/raw/{rel_to_root}".replace(os.sep, '/')
             with open(filepath, 'rb') as f:
                 content = f.read()
             size   = len(content)
@@ -172,7 +173,7 @@ def upload_host_plants_dir(host_plants_dir):
 
     commit_url = f"https://huggingface.co/api/datasets/{REPO_ID}/commit/main"
     lines = [json.dumps({"key": "header",
-                         "value": {"summary": f"Sync host_plants ({len(file_metadata)} files)"}})]
+                         "value": {"summary": f"Sync plants/raw ({len(file_metadata)} files)"}})]
     for repo_path, meta in file_metadata.items():
         if meta['is_lfs']:
             lines.append(json.dumps({"key": "lfsFile",
@@ -294,7 +295,7 @@ def reupload_existing_batches(master_dir):
     for name in pbar:
         slug = name
         try:
-            count = upload_host_plants_dir(os.path.join(master_dir, name), slug)
+            count = upload_host_plants_dir(master_dir, slug)
             uploaded += 1
             files_uploaded += count
             pbar.set_postfix({"Uploaded": uploaded, "Files": files_uploaded})
@@ -448,7 +449,7 @@ def run_plant_crawler(chunk=1, total_chunks=1):
                     raise Exception("Scraper returned failure.")
 
                 if hf_ready and img_count > 0:
-                    upload_host_plants_dir(host_plants_dir)
+                    upload_host_plants_dir(host_plants_dir, slug)
 
                 success_count     += 1
                 images_synced     += img_count

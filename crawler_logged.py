@@ -47,7 +47,7 @@ LOCK_TTL_SECONDS = 600  # 10 minutes
 
 def try_acquire_hf_lock(slug):
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    lock_path = f"locks/{slug}.lock"
+    lock_path = f"locks/butterfly_{slug}.lock"
     check_url = f"https://huggingface.co/datasets/{REPO_ID}/resolve/main/{lock_path}"
     try:
         resp = requests.get(check_url, headers=headers, timeout=10)
@@ -98,7 +98,7 @@ def release_hf_lock(slug):
     body = "\n".join(
         [
             json.dumps({"key": "header", "value": {"summary": f"Unlock {slug}"}}),
-            json.dumps({"key": "deletedFile", "value": {"path": f"locks/{slug}.lock"}}),
+            json.dumps({"key": "deletedFile", "value": {"path": f"locks/butterfly_{slug}.lock"}}),
         ]
     )
     try:
@@ -187,7 +187,7 @@ def upload_batch(batch_dir, slug):
         )
     ]
     for filename, meta in file_metadata.items():
-        path_in_repo = f"data/{slug}/{filename}"
+        path_in_repo = f"data/butterflies/raw/{slug}/{filename}"
         if meta["is_lfs"]:
             lines.append(
                 json.dumps(
