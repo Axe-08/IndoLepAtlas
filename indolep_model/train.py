@@ -82,6 +82,40 @@ def select_gpu() -> int:
         return 0
 
 
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    value = str(value).strip().lower()
+    if value in {'true', '1', 'yes', 'y', 't'}:
+        return True
+    if value in {'false', '0', 'no', 'n', 'f'}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value}")
+
+
+def apply_freeze_strategy(model, strategy: str):
+    if strategy == 'none':
+        return
+
+    if strategy == 'head_only':
+        for name, param in model.named_parameters():
+            param.requires_grad = name.startswith('head') or name.startswith('geo_fusion')
+        return
+
+    early_keys = ('backbone.stem', 'backbone.stages.0', 'backbone.stages.1',
+                  'backbone.downsample_layers.0', 'backbone.downsample_layers.1')
+    late_keys = ('backbone.stages.2', 'backbone.stages.3',
+                 'backbone.downsample_layers.2', 'backbone.downsample_layers.3')
+
+    for name, param in model.named_parameters():
+        if strategy == 'freeze_early' and name.startswith(early_keys):
+            param.requires_grad = False
+        elif strategy == 'freeze_late' and name.startswith(late_keys):
+            param.requires_grad = False
+
+
 def plot_training_curves(csv_path, out_dir):
     """Reads metrics.csv and outputs visual accuracy/precision/loss graphs."""
     epochs, t_loss, v_loss, t_acc, v_acc, v_f1, v_prec = [], [], [], [], [], [], []
@@ -259,7 +293,7 @@ def main():
     # Phase defaults to 3 (MLFI + CA) to balance robust learning against extreme scattering.
     parser.add_argument('--phase', type=int, default=3, choices=[1, 2, 3, 5])
     parser.add_argument('--use_geotemporal', action='store_true')
-    parser.add_argument('--pretrained', type=bool, default=True)
+    parser.add_argument('--pretrained', type=str2bool, default=True)
     parser.add_argument('--dropout', type=float, default=0.3)
 
     parser.add_argument('--loss', type=str, default='focal', choices=['ce', 'focal'])
@@ -272,12 +306,18 @@ def main():
     parser.add_argument('--weight_decay', type=float, default=0.05)
     parser.add_argument('--warmup_epochs', type=int, default=5)
     parser.add_argument('--num_workers', type=int, default=4)
-    parser.add_argument('--balanced_sampling', type=bool, default=True)
+    parser.add_argument('--balanced_sampling', type=str2bool, default=True)
 
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output_dir', type=str, default='./runs')
     parser.add_argument('--exp_name', type=str, default='')
     parser.add_argument('--resume', type=str, default='')
+    parser.add_argument(
+        '--freeze_strategy',
+        type=str,
+        default='none',
+        choices=['none', 'head_only', 'freeze_early', 'freeze_late'],
+    )
 
     args = parser.parse_args()
 
@@ -329,6 +369,7 @@ def main():
 
     model = build_model(num_classes=num_classes, phase=args.phase, pretrained=args.pretrained, dropout=args.dropout)
     model = model.to(device)
+    apply_freeze_strategy(model, args.freeze_strategy)
 
     class_weights = train_loader.dataset.get_class_weights().to(device) if args.loss == 'focal' else None
     criterion = build_loss(
@@ -338,12 +379,16 @@ def main():
         label_smoothing=args.label_smoothing,
     )
 
-    backbone_params = list(model.backbone.parameters())
-    new_params = [p for n, p in model.named_parameters() if 'backbone' not in n]
-    optimizer = optim.AdamW([
-        {'params': backbone_params, 'lr': args.lr * 0.1}, 
-        {'params': new_params, 'lr': args.lr},
-    ], weight_decay=args.weight_decay)
+    backbone_params = [p for n, p in model.named_parameters()
+                       if 'backbone' in n and p.requires_grad]
+    new_params = [p for n, p in model.named_parameters()
+                  if 'backbone' not in n and p.requires_grad]
+    param_groups = []
+    if backbone_params:
+        param_groups.append({'params': backbone_params, 'lr': args.lr * 0.1})
+    if new_params:
+        param_groups.append({'params': new_params, 'lr': args.lr})
+    optimizer = optim.AdamW(param_groups, weight_decay=args.weight_decay)
 
     scheduler = get_cosine_schedule_with_warmup(optimizer, args.warmup_epochs, args.epochs)
     scaler = GradScaler('cuda' if torch.cuda.is_available() else 'cpu')

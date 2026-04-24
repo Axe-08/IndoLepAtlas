@@ -13,6 +13,7 @@ Outputs:
 import argparse
 import os
 import json
+import csv
 from collections import defaultdict
 
 import numpy as np
@@ -233,7 +234,7 @@ def main():
         os.path.join(args.output_dir, f'confusion_{args.split}.png')
     )
 
-    results = {
+    summary = {
         'split': args.split,
         'checkpoint': args.checkpoint,
         'phase': phase,
@@ -242,16 +243,32 @@ def main():
         'macro_precision': float(macro_precision),
         'macro_f1': float(macro_f1),
         'weighted_f1': float(weighted_f1),
-        'stratum_results': stratum_results,
-        'top_confusions': [
-            {'count': int(c), 'true': t, 'predicted': p}
-            for c, t, p in confusions
-        ],
     }
+    summary_file = os.path.join(args.output_dir, 'summary.json')
+    with open(summary_file, 'w') as f:
+        json.dump(summary, f, indent=2)
+
+    per_stratum_file = os.path.join(args.output_dir, 'per_stratum.json')
+    with open(per_stratum_file, 'w') as f:
+        json.dump(stratum_results, f, indent=2)
+
+    confusion_file = os.path.join(args.output_dir, 'confusion_pairs.csv')
+    with open(confusion_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['count', 'true_species', 'predicted_species'])
+        writer.writerows([[int(c), t, p] for c, t, p in confusions])
+
     out_file = os.path.join(args.output_dir, f'eval_{args.split}.json')
     with open(out_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"\n  Results saved to: {out_file}")
+        json.dump({
+            'summary': summary,
+            'stratum_results': stratum_results,
+            'top_confusions': [
+                {'count': int(c), 'true': t, 'predicted': p}
+                for c, t, p in confusions
+            ],
+        }, f, indent=2)
+    print(f"\n  Results saved to: {summary_file}")
 
 
 if __name__ == '__main__':
