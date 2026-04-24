@@ -13,6 +13,7 @@ Outputs:
 import argparse
 import os
 import json
+import csv
 from collections import defaultdict
 
 import numpy as np
@@ -228,12 +229,8 @@ def main():
     for cnt, true_sp, pred_sp in confusions:
         print(f"  {cnt:<8} {true_sp:<30} {pred_sp:<30}")
 
-    plot_confusion_heatmap(
-        preds, targets, dataset.idx_to_species,
-        os.path.join(args.output_dir, f'confusion_{args.split}.png')
-    )
-
-    results = {
+    # Save all requested outputs for the analysis script
+    summary_results = {
         'split': args.split,
         'checkpoint': args.checkpoint,
         'phase': phase,
@@ -242,17 +239,26 @@ def main():
         'macro_precision': float(macro_precision),
         'macro_f1': float(macro_f1),
         'weighted_f1': float(weighted_f1),
-        'stratum_results': stratum_results,
-        'top_confusions': [
-            {'count': int(c), 'true': t, 'predicted': p}
-            for c, t, p in confusions
-        ],
     }
-    out_file = os.path.join(args.output_dir, f'eval_{args.split}.json')
-    with open(out_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"\n  Results saved to: {out_file}")
+    
+    with open(os.path.join(args.output_dir, 'summary.json'), 'w') as f:
+        json.dump(summary_results, f, indent=2)
+        
+    with open(os.path.join(args.output_dir, 'per_stratum.json'), 'w') as f:
+        json.dump(stratum_results, f, indent=2)
 
+    with open(os.path.join(args.output_dir, 'confusion_pairs.csv'), 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['count', 'true_species', 'predicted_species'])
+        for c, t, p in confusions:
+            writer.writerow([int(c), t, p])
+            
+    plot_confusion_heatmap(
+        preds, targets, dataset.idx_to_species,
+        os.path.join(args.output_dir, 'confusion_heatmap.png')
+    )
+
+    print(f"\n  Results saved to: {args.output_dir}")
 
 if __name__ == '__main__':
     main()

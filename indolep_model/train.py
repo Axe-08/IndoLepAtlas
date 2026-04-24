@@ -45,6 +45,16 @@ except ImportError:
     pass  # Allow IDE resolution if running from different dir
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 def setup_logger(log_file):
     """Setup custom text logger appended dynamically."""
     logger = logging.getLogger('training_logger')
@@ -259,7 +269,7 @@ def main():
     # Phase defaults to 3 (MLFI + CA) to balance robust learning against extreme scattering.
     parser.add_argument('--phase', type=int, default=3, choices=[1, 2, 3, 5])
     parser.add_argument('--use_geotemporal', action='store_true')
-    parser.add_argument('--pretrained', type=bool, default=True)
+    parser.add_argument('--pretrained', type=str2bool, default=True)
     parser.add_argument('--dropout', type=float, default=0.3)
 
     parser.add_argument('--loss', type=str, default='focal', choices=['ce', 'focal'])
@@ -272,7 +282,8 @@ def main():
     parser.add_argument('--weight_decay', type=float, default=0.05)
     parser.add_argument('--warmup_epochs', type=int, default=5)
     parser.add_argument('--num_workers', type=int, default=4)
-    parser.add_argument('--balanced_sampling', type=bool, default=True)
+    parser.add_argument('--balanced_sampling', type=str2bool, default=True)
+    parser.add_argument('--freeze_strategy', type=str, default='none', choices=['none', 'head_only', 'freeze_early', 'freeze_late'])
 
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output_dir', type=str, default='./runs')
@@ -338,8 +349,26 @@ def main():
         label_smoothing=args.label_smoothing,
     )
 
-    backbone_params = list(model.backbone.parameters())
-    new_params = [p for n, p in model.named_parameters() if 'backbone' not in n]
+    def apply_freeze_strategy(model, strategy):
+        if strategy == 'none':
+            return
+        elif strategy == 'head_only':
+            for name, param in model.named_parameters():
+                if 'head' not in name and 'mlfi' not in name and 'pool' not in name:
+                    param.requires_grad = False
+        elif strategy == 'freeze_early':
+            for name, param in model.named_parameters():
+                if any(x in name for x in ['stem', 'stages.0', 'stages.1']):
+                    param.requires_grad = False
+        elif strategy == 'freeze_late':
+            for name, param in model.named_parameters():
+                if any(x in name for x in ['stages.2', 'stages.3']):
+                    param.requires_grad = False
+                    
+    apply_freeze_strategy(model, args.freeze_strategy)
+
+    backbone_params = [p for p in model.backbone.parameters() if p.requires_grad]
+    new_params = [p for n, p in model.named_parameters() if 'backbone' not in n and p.requires_grad]
     optimizer = optim.AdamW([
         {'params': backbone_params, 'lr': args.lr * 0.1}, 
         {'params': new_params, 'lr': args.lr},
