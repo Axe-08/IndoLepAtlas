@@ -2,23 +2,18 @@
 Your report is a rigorous ablation study on your own dataset. That's valuable, but it answers the question "what works on IndoLepAtlas" — not "is our approach generally good." Reviewers will immediately ask: how do we know your results aren't just an artifact of your specific dataset? You need something that anchors your work to the broader literature.
 The good news is you have two legitimate options, and they lead to different paper framings.
 
-## Option A — Dataset Paper (Recommended Given What You Have)
+## Dataset Paper
 The primary contribution is IndoLepAtlas itself. The model work becomes the "baseline establishment" that accompanies the dataset release. This is a well-established and respected paper type — the CUB-200-2011 paper, the iNaturalist paper, Stanford Dogs — all follow this pattern. The dataset is the thing that lasts.
 For this framing, you do not need to beat SOTA on CUB-200-2011. What you need instead is:
 Run 3-4 external standard models on your dataset and report them as baselines. This is far more work-efficient than testing on CUB. You'd run ViT-B/16 (fine-tuned), ResNet-101, and EfficientNet-B5 on IndoLepAtlas using the same train/val/test split you already have, then show your best configuration (CE + Balanced + CA) outperforms them. This answers the reviewer question "compared to what?" without leaving your own domain.
 What makes this paper strong: the geotemporal metadata (location + season) is what no existing dataset has. Your 98.3% location coverage and 9-zone biogeographic mapping is a genuine contribution. The ablation you've done establishes what works as a baseline for future researchers. The paper would be framed as: "We present IndoLepAtlas, a 966-species India-specific Lepidoptera dataset with geotemporal metadata, establish strong baselines through systematic ablation, and demonstrate that geotemporal fusion further improves classification."
 That last clause is important — the geotemporal fusion is listed as future work in your report but it's actually the most novel methodological contribution. You should implement it because it's the thing that distinguishes this from "another butterfly classification paper."
 
-## Option B — Methodology Paper
-The primary contribution is your architectural findings. For this you do need CUB-200-2011 results because reviewers will directly compare to published FGBNet, ViT, ConvNeXt numbers. The risk here is that your findings are somewhat mixed — CA works well but MLFI underperforms, and you're not beating SOTA architectures. Your CE + Balanced result is strong for your domain but the architecture story isn't clean enough for a pure methodology paper without more work (fixing the MLFI optimization issue, adding DINO pretraining, etc.).
-
-## What I'd Recommend
-Go with Option A, but with these additions before submitting:
 - Addition 1 — External baselines on your dataset. Run ResNet-101 and ViT-B/16 (both with full end-to-end fine-tuning, since your Unit III proved that's mandatory) on IndoLepAtlas. This gives you a proper comparison table.
 - Addition 2 — Geotemporal fusion experiment. This is not as hard as it sounds given your codebase. You already have the features (GPS mapped to 9 biogeographic zones, dates you can convert to cyclic month encoding). Concatenate a zone embedding and a cyclic month embedding to the feature vector before your classification head and retrain your best config. Even a 0.5% improvement on sparse classes is a meaningful and publishable result because no one has done this for butterfly classification. If it doesn't help, that's also publishable — a negative result with an ecological interpretation ("biogeographic zone does not provide discriminative signal beyond what the visual features already capture at this scale") is honest science.
 - Addition 3 — The MLFI finding needs more investigation. Your report correctly diagnoses the problem as an optimization imbalance — the MLFI branches are freshly initialized with full learning rate while the backbone is near-converged at 0.1x. The fix is straightforward: warmup the MLFI branches for the first 5-10 epochs with a lower learning rate, then ramp up. If you can close that 2-point gap, MLFI becomes a real contribution.
 
-## Paper Structure Given This Path
+## Paper Structure
 
 The paper frames itself around three questions, matching your three experimental units but with cleaner narrative arcs:
 Dataset contribution: IndoLepAtlas fills a specific gap — existing datasets (iNaturalist, GBIF) are global and dilute India-specific subspecies representation. Show a coverage comparison: how many of your 966 species have fewer than 100 iNaturalist India records? That number will be striking.
