@@ -32,14 +32,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 try:
-    from dataset import ButterflyDataset, get_val_transforms
+    from dataset import ButterflyDataset, get_val_transforms, create_dataloaders
     from models.backbone import build_model
 except ImportError:
     pass
 
 
 @torch.no_grad()
-def run_inference(model, loader, device, use_geo=False):
+def run_inference(model, loader, device, use_geo=False, shuffle_geo=False, is_baseline=False):
     model.eval()
     all_preds = []
     all_targets = []
@@ -52,7 +52,11 @@ def run_inference(model, loader, device, use_geo=False):
 
         zone_idx = batch.get('zone_idx')
         month_enc = batch.get('month_enc')
-        if use_geo and zone_idx is not None:
+        if use_geo and zone_idx is not None and not is_baseline:
+            if shuffle_geo:
+                idx = torch.randperm(zone_idx.size(0))
+                zone_idx = zone_idx[idx]
+                month_enc = month_enc[idx]
             zone_idx = zone_idx.to(device, non_blocking=True)
             month_enc = month_enc.to(device, non_blocking=True)
         else:
@@ -60,7 +64,10 @@ def run_inference(model, loader, device, use_geo=False):
             month_enc = None
 
         with autocast():
-            logits = model(images, zone_idx, month_enc)
+            if is_baseline:
+                logits = model(images)
+            else:
+                logits = model(images, zone_idx, month_enc)
 
         all_logits.append(logits.cpu())
         all_preds.extend(logits.argmax(dim=1).cpu().numpy())
@@ -151,6 +158,9 @@ def main():
     parser.add_argument('--output_dir', type=str, default='./eval_results')
     parser.add_argument('--sparse_threshold', type=int, default=30)
 
+    parser.add_argument('--shuffle_geo', action='store_true',
+                        help='Shuffle geotemporal features at inference (control experiment)')
+
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
 
@@ -165,33 +175,50 @@ def main():
         
     config = ckpt.get('config', {})
     phase = config.get('phase', 1)
+    baseline_arch = config.get('baseline', '')
     use_geo = config.get('use_geotemporal', False) or phase == 5
     img_size = config.get('img_size', 224)
 
-    dataset = ButterflyDataset(
+    train_loader, val_loader, test_loader, num_classes = create_dataloaders(
         data_root=args.data_root,
-        split=args.split,
+        batch_size=args.batch_size,
         img_size=img_size,
+        num_workers=args.num_workers,
         use_geotemporal=use_geo,
+        balanced_sampling=False,
         metadata_file=config.get('metadata_file', 'metadata_filtered.csv'),
     )
-    loader = torch.utils.data.DataLoader(
-        dataset, batch_size=args.batch_size, shuffle=False,
-        num_workers=args.num_workers, pin_memory=True
-    )
-    num_classes = dataset.num_classes
 
-    model = build_model(
-        num_classes=num_classes,
-        phase=phase,
-        pretrained=False,
-        dropout=config.get('dropout', 0.3),
-    )
+    if args.split == 'test':
+        loader = test_loader
+        dataset = test_loader.dataset
+    elif args.split == 'val':
+        loader = val_loader
+        dataset = val_loader.dataset
+    else:
+        loader = train_loader
+        dataset = train_loader.dataset
+        
+    train_ds = train_loader.dataset
+
+    if baseline_arch:
+        from models.baselines import build_baseline_model
+        model = build_baseline_model(baseline_arch, num_classes=num_classes, pretrained=False)
+    else:
+        model = build_model(
+            num_classes=num_classes,
+            phase=phase,
+            pretrained=False,
+            dropout=config.get('dropout', 0.3),
+        )
     model.load_state_dict(ckpt['model_state_dict'])
     model = model.to(device)
 
     print(f"\n  Running inference on {args.split} set ({len(dataset)} images)...")
-    preds, targets, logits = run_inference(model, loader, device, use_geo)
+    preds, targets, logits = run_inference(
+        model, loader, device, use_geo,
+        shuffle_geo=args.shuffle_geo, is_baseline=bool(baseline_arch)
+    )
 
     top1_acc = accuracy_score(targets, preds)
     top5_acc = compute_topk_accuracy(logits, targets, k=5)
@@ -210,7 +237,7 @@ def main():
     print(f"  Weighted F1:    {weighted_f1:.4f}")
 
     # Generate stratum results to observe long-tail scaling
-    train_ds = ButterflyDataset(args.data_root, 'train', use_geotemporal=use_geo)
+    # train_ds already loaded above
     train_counts = train_ds.get_class_counts()
 
     stratum_results = per_stratum_accuracy(
