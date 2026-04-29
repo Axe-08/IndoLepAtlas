@@ -55,22 +55,105 @@
 
 \setlength{\parskip}{0.5em}
 \setlength{\parindent}{0em}
+\emergencystretch=1em
 
 \begin{document}
 \maketitle
 
 \section{Abstract}
-Fine-grained classification of Indian Lepidoptera species presents compounding challenges: spatial information collapse in channel attention, progressive texture-cue loss through pooling, and extreme long-tail class imbalance. We conduct an 11-configuration ablation study across three experimental units--loss dynamics (30 epochs), architectural feature fusion (40 epochs), and transfer-learning layer freezing (40 epochs)--on a curated dataset of 24,825 images spanning 966 species. Our best configuration, cross-entropy with class-balanced sampling, achieves \textbf{87.06\% Top-1 accuracy} and \textbf{85.48\% macro-F1}, with balanced Dense/Sparse stratum performance (87.67\%/85.84\%). Coordinate Attention improves Sparse-class accuracy to 88.05\% by preserving positional wing-pattern information. Multi-Level Feature Interaction (MLFI) reaches 84.43\% Top-1 with strong Sparse performance (86.66\%), though its added parameterisation creates a 2-point gap versus the baseline. Head-only linear probing catastrophically fails at 53.20\%, confirming that ImageNet features are fundamentally misaligned with entomological morphology and full end-to-end fine-tuning is mandatory.
+Fine-grained classification of Indian Lepidoptera species presents compounding challenges: spatial information collapse in channel attention, progressive texture-cue loss through pooling, and extreme long-tail class imbalance. We conduct an 11-configuration ablation study across three experimental units--loss dynamics (30 epochs), architectural feature fusion (40 epochs), and transfer-learning layer freezing (40 epochs)--on a curated dataset of 60,641 images spanning 966 species. Our best configuration, cross-entropy with class-balanced sampling, achieves \textbf{87.06\% Top-1 accuracy} and \textbf{85.48\% macro-F1}, with balanced Dense/Sparse stratum performance (87.67\%/85.84\%). Coordinate Attention improves Sparse-class accuracy to 88.05\% by preserving positional wing-pattern information. Multi-Level Feature Interaction (MLFI) reaches 84.43\% Top-1 with strong Sparse performance (86.66\%), though its added parameterisation creates a 2-point gap versus the baseline. Head-only linear probing catastrophically fails at 53.20\%, confirming that ImageNet features are fundamentally misaligned with entomological morphology and full end-to-end fine-tuning is mandatory.
 
 \section{Introduction and Motivation}
 
 India's 1,500+ Lepidoptera species represent one of the world's richest butterfly biodiversity hotspots. Automated classification from field photographs is critical for ecological monitoring and conservation planning. Yet this task fundamentally differs from standard benchmarks: discriminative features are spatially precise (eyespot location separates genera), hierarchically distributed across scales (texture bands vs overall wing morphology), and unevenly sampled (dominant species exceed 500 images while 400 rare species have $<$50 images).
 
-Standard CNNs fail on this task in predictable ways. Channel attention mechanisms like SE-Net~\cite{hu2018squeeze} collapse spatial dimensions through global average pooling, discarding the positional information essential for wing pattern discrimination. Deep pooling progressively destroys fine-grained texture cues, routing only high-level semantics to the classifier. Uniform sampling over-indexes on common species, starving rare classes of gradient signal. We structure our investigation around three questions: (1)~how do loss formulations and sampling strategies interact under long-tail distributions, (2)~where is the optimal point for integrating attention and multi-level fusion, and (3)~what is the optimal adaptation pathway when transferring from non-biological source domains.
+Existing global biodiversity datasets--iNaturalist~\cite{vanhorn2018inaturalist}, GBIF--dilute India-specific subspecies representation. Many Indian endemic and regionally restricted species have fewer than 100 research-grade observations in global repositories, creating a critical data gap for conservation-focused AI systems. Furthermore, no existing butterfly classification dataset integrates geotemporal metadata (biogeographic zone, observation season) or documents larval host plant associations--ecological dimensions that could substantially improve classification accuracy and enable applications beyond species identification, such as early-stage detection and habitat suitability mapping.
 
-\section{Dataset and Experimental Setup}
+Standard CNNs fail on this task in predictable ways. Channel attention mechanisms like SE-Net~\cite{hu2018squeeze} collapse spatial dimensions through global average pooling, discarding the positional information essential for wing pattern discrimination. Deep pooling progressively destroys fine-grained texture cues, routing only high-level semantics to the classifier. Uniform sampling over-indexes on common species, starving rare classes of gradient signal.
 
-The IndoLepAtlas dataset comprises 24,825 images (966 species post-filtering) curated from the Indian Lepidoptera web atlas and iNaturalist, with rigorous metadata: GPS coordinates, observation dates, and 9-zone biogeographic mapping across 34 Indian states. Geographic contributors: Maharashtra (4,383), Karnataka (3,065), Arunachal Pradesh (2,918). Temporal coverage spans all 12 months with monsoon peak (Aug--Nov). Class distribution ranges from 500+ images (dominant species like \emph{Papilio polytes}) to $<$5 images (tail species), with key metadata coverage of 98.3\% (location) and 76.1\% (date). Classes are stratified into \textbf{Dense} ($\geq$50 images) and \textbf{Sparse} ($<$50 images) strata for evaluation.
+We make the following contributions:
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{IndoLepAtlas dataset:} A curated 60,641-image, 966-species India-specific Lepidoptera dataset with GPS coordinates, observation dates, 9-zone biogeographic mapping, early life-stage documentation and 703 images of 127 larval host plant species--the first butterfly dataset to integrate ecological metadata at this scale.
+    \item \textbf{Systematic baseline establishment:} An 11-configuration ablation study across loss dynamics, architectural feature fusion, and transfer-learning strategies, providing reproducible baselines for future work on IndoLepAtlas.
+    \item \textbf{Domain-shift analysis:} Empirical demonstration that ImageNet features are fundamentally misaligned with entomological morphology, with head-only probing achieving just 53.20\% and exhibiting a striking Dense/Sparse accuracy inversion.
+    %\item \textbf{Geotemporal fusion:} First integration of biogeographic zone and seasonal embeddings into a butterfly classification pipeline. % UNCOMMENT AFTER PHASE 5 RESULTS
+\end{enumerate}
+
+\section{Related Work}
+
+\subsection{Fine-Grained Visual Classification}
+Fine-grained visual classification (FGVC) aims to distinguish subordinate categories within a superclass--bird species~\cite{wah2011cub}, dog breeds, car models. Key benchmarks include CUB-200-2011~\cite{wah2011cub} (200 bird species, 11,788 images) and iNaturalist~\cite{vanhorn2018inaturalist} (5,000+ species, 675,000 images). Architecturally, the field has progressed from bilinear pooling through channel attention (SE-Net~\cite{hu2018squeeze}) to multi-level feature fusion (FGBNet~\cite{yuan2025fgbnet}). Vision Transformers~\cite{dosovitski2021image} achieve strong results on large-scale FGVC but require substantial data. Coordinate Attention~\cite{hou2021coordinate} offers a lightweight alternative that preserves spatial structure--a property we exploit for wing-pattern localisation.
+
+\subsection{Insect and Butterfly Classification}
+Automated insect classification has gained momentum with datasets for crop pests~\cite{amarathunga2022thrips}, thrips, and general entomology. For Lepidoptera specifically, existing systems rely on standard transfer learning from ImageNet without addressing the domain gap. Amarathunga et al.~(2021) identify temporal distribution, geographic context, and life-stage variation as open problems in insect classification--problems that IndoLepAtlas directly addresses through its metadata design. No prior work integrates geotemporal features into an end-to-end butterfly classification pipeline.
+
+\subsection{Geotemporal Features in Ecological ML}
+Species distribution modelling (MaxEnt, random forests on bioclimatic variables) has long used geographic and seasonal features for predicting species occurrence. iNaturalist's geo-aware species suggestions demonstrate the practical value of location priors. However, these approaches operate as separate prediction systems rather than fusing geotemporal context into the visual classification pipeline itself. Our geotemporal fusion module bridges this gap by concatenating learned biogeographic zone embeddings and cyclic seasonal encodings with visual features before classification.
+
+\section{IndoLepAtlas Dataset}
+
+\subsection{Collection and Curation}
+IndoLepAtlas comprises 61,344 images spanning 966 butterfly species and 127 larval host plant species, curated from the Indian Lepidoptera web atlas and iNaturalist with rigorous quality control. The filtering pipeline removes non-butterfly entries, resolves taxonomic synonyms, and separates early life-stage images from adult specimens (60,641 images) using both metadata tags and filename pattern matching. Adult images are used for classification training; early-stage images are retained as labelled auxiliary data for future life-stage detection and species-lifecycle modelling.
+
+\subsection{Taxonomic and Geographic Coverage}
+The dataset covers six butterfly families: Nymphalidae (7,168), Lycaenidae (6,769), Hesperiidae (6,416), Pieridae (1,821), Papilionidae (1,555), and Riodinidae (417)--representing approximately 64\% of India's known butterfly diversity. Geographic coverage spans 34 Indian states mapped to 9 biogeographic zones, with primary contributions from Maharashtra (4,383), Karnataka (3,065), and Arunachal Pradesh (2,918). Metadata coverage: 98.3\% location, 76.1\% date, 85.8\% sex missing (acknowledged limitation). Temporal distribution spans all 12 months with a monsoon peak (August--November), reflecting natural butterfly activity patterns.
+
+\subsection{Unique Features: Early Stages and Host Plants}
+Unlike existing FGVC datasets, IndoLepAtlas documents the ecological context of each species:
+\begin{itemize}[nosep]
+    \item \textbf{Early life-stage images} Labelled caterpillar/pupa/egg photographs enable future work on life-stage classification and conservation efforts by early species prediction/detection, as well as early pest detection--critical for agricultural monitoring where caterpillar identification precedes adult emergence by weeks.
+    \item \textbf{Larval host plant associations} (127 plant species with 703 images) document butterfly--plant ecological dependencies. This data supports habitat suitability modelling: a species cannot persist where its host plant is absent, providing a strong ecological prior for distribution prediction.
+    \item \textbf{Geotemporal metadata} (GPS $\to$ 9 biogeographic zones, observation dates $\to$ cyclic month encoding) enables fusion of ecological context into visual classification.
+\end{itemize}
+
+\subsection{Class Distribution and Evaluation Protocol}
+Class distribution ranges from 543 images (\emph{Athyma selenophora}) to $<$5 images (tail species). Classes are stratified into \textbf{Dense} ($\geq$50 images) and \textbf{Sparse} ($<$50 images) strata. Data is split into train (43.5\%), validation (22.7\%), and test (33.8\%) partitions.
+
+% === iNaturalist Coverage Comparison (to be filled after inat_coverage.py completes) ===
+% \subsection{Coverage Gap Analysis}
+% Cross-referencing IndoLepAtlas species against iNaturalist India research-grade observations reveals
+% that X\% of our 961 species have fewer than 100 India-specific iNat records, and Y species have
+% zero records. This confirms that global repositories severely under-represent India-specific
+% Lepidoptera diversity.
+%
+% \begin{table}[H]
+% \centering
+% \caption{IndoLepAtlas species representation in iNaturalist India.}
+% \label{tab:inat_coverage}
+% \small
+% \begin{tabular}{@{}lcc@{}}
+% \toprule
+% \textbf{iNat India Records} & \textbf{\# Species} & \textbf{\% of Dataset} \\
+% \midrule
+% 0 (absent)      & ?? & ??\% \\
+% 1--10           & ?? & ??\% \\
+% 11--50          & ?? & ??\% \\
+% 51--100         & ?? & ??\% \\
+% 101--500        & ?? & ??\% \\
+% $>$500          & ?? & ??\% \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% === Cross-Dataset Comparison Table ===
+\begin{table}[H]
+\centering
+\caption{Comparison with existing fine-grained classification datasets.}
+\label{tab:dataset_comparison}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Species} & \textbf{Images} & \textbf{Geo} & \textbf{Temporal} & \textbf{Host Plants} \\
+\midrule
+CUB-200-2011~\cite{wah2011cub}    & 200   & 11,788  & \texttimes & \texttimes & \texttimes \\
+iNaturalist~\cite{vanhorn2018inaturalist} & 5,089 & 675,170 & \checkmark & \checkmark & \texttimes \\
+IP102               & 102   & 75,222  & \texttimes & \texttimes & \texttimes \\
+\textbf{IndoLepAtlas} & \textbf{966} & \textbf{60,641} & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Experimental Setup}
 
 We execute a systematic 11-configuration ablation across three experimental units on a DGX V100 cluster. Unit~I (loss dynamics) trains for 30 epochs; Units~II and III (architecture and freezing) train for 40 epochs. All experiments use a ConvNeXt-Tiny backbone~\cite{liu2022convnext} with AdamW optimisation (differential learning rates: backbone $0.1\times$, new heads $10^{-4}$), cosine annealing with 5-epoch warmup, mixed precision AMP, and macro-F1 checkpoint selection to ensure long-tail sensitivity.
 
@@ -84,14 +167,14 @@ We test cross-entropy (CE) and Focal Loss~\cite{lin2017focal} across balanced an
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{unit1_training_curves.png}
+\includegraphics[width=0.95\linewidth]{report_assets/report_assets/plots/unit1_training_curves.png}
 \caption{Unit~I training curves: validation loss and accuracy over 30 epochs for all four loss--sampling configurations.}
 \label{fig:unit1_curves}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.65\linewidth]{report_assests/plots/unit1_bar_comparison.png}
+\includegraphics[width=0.65\linewidth]{report_assets/report_assets/plots/unit1_bar_comparison.png}
 \caption{Unit~I metric comparison: Top-1 accuracy, Macro-F1, Dense and Sparse accuracy across loss--sampling strategies.}
 \label{fig:unit1_bars}
 \end{figure}
@@ -110,7 +193,7 @@ We ablate structural complexity across three progressive phases (Table~\ref{tab:
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{unit2_training_curves.png}
+\includegraphics[width=0.95\linewidth]{report_assets/report_assets/plots/unit2_training_curves.png}
 \caption{Unit~II training curves: validation loss and accuracy over 40 epochs for Baseline, +CA, and +CA+MLFI architectures.}
 \label{fig:unit2_curves}
 \end{figure}
@@ -231,7 +314,7 @@ Future work includes geotemporal fusion using seasonal and biogeographic embeddi
 
 \bibliographystyle{plainnat}
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{15}
 
 \bibitem[Yuan et~al., 2025]{yuan2025fgbnet}
 Y.~Yuan et~al., FGBNet: A Bio-Subspecies Classification Network with Multi-Level Feature Interaction, \emph{Diversity}, 2025. \url{https://doi.org/10.3390/d17040237}
@@ -262,6 +345,12 @@ A.~Dosovitskiy et~al., An image is worth 16x16 words: Transformers for image rec
 
 \bibitem[Loshchilov and Hutter, 2017]{loshchilov2017sgdr}
 I.~Loshchilov and F.~Hutter, SGDR: Stochastic Gradient Descent with Warm Restarts, \emph{ICLR}, 2017. \url{https://arxiv.org/abs/1608.03983}
+
+\bibitem[Wah et~al., 2011]{wah2011cub}
+C.~Wah, S.~Branson, P.~Welinder, P.~Perona, and S.~Belongie, The Caltech-UCSD Birds-200-2011 Dataset, Technical Report CNS-TR-2011-001, Caltech, 2011.
+
+\bibitem[Van~Horn et~al., 2018]{vanhorn2018inaturalist}
+G.~Van~Horn et~al., The iNaturalist Species Classification and Detection Dataset, \emph{CVPR}, 2018. \url{https://arxiv.org/abs/1707.06642}
 
 \end{thebibliography}
 
