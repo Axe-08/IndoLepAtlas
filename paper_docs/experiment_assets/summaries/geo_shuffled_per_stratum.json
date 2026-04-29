@@ -1,0 +1,14 @@
+{
+  "dense": {
+    "n_classes": 339,
+    "n_samples": 3916,
+    "accuracy": 0.8787027579162411,
+    "macro_f1": 0.7231988952497448
+  },
+  "sparse": {
+    "n_classes": 627,
+    "n_samples": 1949,
+    "accuracy": 0.8332478193945613,
+    "macro_f1": 0.7188679416319242
+  }
+}

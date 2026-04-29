@@ -1,0 +1,10 @@
+{
+  "split": "test",
+  "checkpoint": "runs/paper_baseline_resnet101_20260429_015249/best_model.pth",
+  "phase": 3,
+  "top1_accuracy": 0.4876385336743393,
+  "top5_accuracy": 0.7691389599317988,
+  "macro_precision": 0.4993567233417668,
+  "macro_f1": 0.47595849899493947,
+  "weighted_f1": 0.4775548021489365
+}

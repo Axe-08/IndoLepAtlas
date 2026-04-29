@@ -1,0 +1,10 @@
+{
+  "split": "test",
+  "checkpoint": "runs/paper_geo_phase5_shuffled_20260429_015250/best_model.pth",
+  "phase": 5,
+  "top1_accuracy": 0.8635976129582268,
+  "top5_accuracy": 0.9711849957374254,
+  "macro_precision": 0.8640816593627841,
+  "macro_f1": 0.8456982148916836,
+  "weighted_f1": 0.8585912470648402
+}

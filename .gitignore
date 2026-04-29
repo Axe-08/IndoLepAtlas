@@ -57,3 +57,4 @@ butterfly_adult_viz/
 *.csv
 *.json
 splits/
+events.*

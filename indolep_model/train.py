@@ -137,7 +137,7 @@ def plot_training_curves(csv_path, out_dir):
 
 
 def train_one_epoch(
-    model, loader, criterion, optimizer, scaler, device, use_geo, epoch, logger
+    model, loader, criterion, optimizer, scaler, device, use_geo, epoch, logger, grad_accum_steps, is_baseline=False
 ):
     model.train()
     total_loss = 0
@@ -152,7 +152,7 @@ def train_one_epoch(
 
         zone_idx = batch.get('zone_idx')
         month_enc = batch.get('month_enc')
-        if use_geo and zone_idx is not None:
+        if use_geo and zone_idx is not None and not is_baseline:
             zone_idx = zone_idx.to(device, non_blocking=True)
             month_enc = month_enc.to(device, non_blocking=True)
         else:
@@ -162,16 +162,25 @@ def train_one_epoch(
         optimizer.zero_grad()
 
         with autocast(device_type='cuda' if torch.cuda.is_available() and device.type == 'cuda' else 'cpu'):
-            logits = model(images, zone_idx, month_enc)
+            if is_baseline:
+                logits = model(images)
+            else:
+                logits = model(images, zone_idx, month_enc)
             loss = criterion(logits, labels)
 
-        scaler.scale(loss).backward()
-        scaler.unscale_(optimizer)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
-        scaler.step(optimizer)
-        scaler.update()
+        # Normalize the loss by grad accumulation steps
+        loss = loss / grad_accum_steps
 
-        curr_loss = loss.item()
+        scaler.scale(loss).backward()
+        
+        if (batch_idx + 1) % grad_accum_steps == 0 or (batch_idx + 1) == len(loader):
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad(set_to_none=True)
+
+        curr_loss = loss.item() * grad_accum_steps # Scale back up for accurate logging
         total_loss += curr_loss
         
         # Calculate EMA loss for smooth printing
@@ -205,7 +214,7 @@ def train_one_epoch(
 
 
 @torch.no_grad()
-def validate(model, loader, criterion, device, use_geo, epoch, logger):
+def validate(model, loader, criterion, device, use_geo, epoch, logger, shuffle_geo=False, is_baseline=False):
     model.eval()
     total_loss = 0
     all_preds = []
@@ -218,7 +227,13 @@ def validate(model, loader, criterion, device, use_geo, epoch, logger):
 
         zone_idx = batch.get('zone_idx')
         month_enc = batch.get('month_enc')
-        if use_geo and zone_idx is not None:
+        if use_geo and zone_idx is not None and not is_baseline:
+            if shuffle_geo:
+                # Randomize along the batch dimension
+                idx = torch.randperm(zone_idx.size(0))
+                zone_idx = zone_idx[idx]
+                month_enc = month_enc[idx]
+                
             zone_idx = zone_idx.to(device, non_blocking=True)
             month_enc = month_enc.to(device, non_blocking=True)
         else:
@@ -226,7 +241,10 @@ def validate(model, loader, criterion, device, use_geo, epoch, logger):
             month_enc = None
 
         with autocast(device_type='cuda' if torch.cuda.is_available() and device.type == 'cuda' else 'cpu'):
-            logits = model(images, zone_idx, month_enc)
+            if is_baseline:
+                logits = model(images)
+            else:
+                logits = model(images, zone_idx, month_enc)
             loss = criterion(logits, labels)
 
         total_loss += loss.item()
@@ -249,13 +267,26 @@ def validate(model, loader, criterion, device, use_geo, epoch, logger):
     return avg_loss, acc, macro_f1, precision
 
 
-def get_cosine_schedule_with_warmup(optimizer, warmup_epochs, total_epochs):
-    def lr_lambda(epoch):
+def get_cosine_schedule_with_warmup(optimizer, warmup_epochs, total_epochs, mlfi_warmup=0):
+    def default_lr(epoch):
         if epoch < warmup_epochs:
-            return (epoch + 1) / warmup_epochs
+            return (epoch + 1) / max(1, warmup_epochs)
         progress = (epoch - warmup_epochs) / max(1, total_epochs - warmup_epochs)
         return 0.5 * (1 + np.cos(np.pi * progress))
-    return optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+
+    def mlfi_lr(epoch):
+        if epoch < mlfi_warmup:
+            return 0.1 + 0.9 * ((epoch + 1) / max(1, mlfi_warmup))
+        progress = (epoch - mlfi_warmup) / max(1, total_epochs - mlfi_warmup)
+        return 0.5 * (1 + np.cos(np.pi * progress))
+
+    lambdas = []
+    for group in optimizer.param_groups:
+        if group.get('is_mlfi', False) and mlfi_warmup > 0:
+            lambdas.append(mlfi_lr)
+        else:
+            lambdas.append(default_lr)
+    return optim.lr_scheduler.LambdaLR(optimizer, lambdas)
 
 
 def main():
@@ -269,6 +300,9 @@ def main():
     # Phase defaults to 3 (MLFI + CA) to balance robust learning against extreme scattering.
     parser.add_argument('--phase', type=int, default=3, choices=[1, 2, 3, 5])
     parser.add_argument('--use_geotemporal', action='store_true')
+    parser.add_argument('--shuffle_geo', action='store_true')
+    parser.add_argument('--baseline', type=str, default='')
+    parser.add_argument('--mlfi_warmup', type=int, default=0)
     parser.add_argument('--pretrained', type=str2bool, default=True)
     parser.add_argument('--dropout', type=float, default=0.3)
 
@@ -277,7 +311,8 @@ def main():
     parser.add_argument('--label_smoothing', type=float, default=0.1)
 
     parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=8)
+    parser.add_argument('--grad_accum_steps', type=int, default=4)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--weight_decay', type=float, default=0.05)
     parser.add_argument('--warmup_epochs', type=int, default=5)
@@ -294,11 +329,14 @@ def main():
 
     # Create run directory
     if not args.exp_name:
-        phase_names = {1: 'baseline', 2: 'ca', 3: 'mlfi', 5: 'geo'}
-        args.exp_name = (
-            f"phase{args.phase}_{phase_names[args.phase]}_"
-            f"{args.loss}_bs{args.batch_size}_lr{args.lr}"
-        )
+        if args.baseline:
+            args.exp_name = f"baseline_{args.baseline}_{args.loss}_bs{args.batch_size}_lr{args.lr}"
+        else:
+            phase_names = {1: 'baseline', 2: 'ca', 3: 'mlfi', 5: 'geo'}
+            args.exp_name = (
+                f"phase{args.phase}_{phase_names[args.phase]}_"
+                f"{args.loss}_bs{args.batch_size}_lr{args.lr}"
+            )
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     run_dir = os.path.join(args.output_dir, f"{args.exp_name}_{timestamp}")
     os.makedirs(run_dir, exist_ok=True)
@@ -338,7 +376,12 @@ def main():
         metadata_file=args.metadata_file,
     )
 
-    model = build_model(num_classes=num_classes, phase=args.phase, pretrained=args.pretrained, dropout=args.dropout)
+    if args.baseline:
+        from models.baselines import build_baseline_model
+        model = build_baseline_model(args.baseline, num_classes=num_classes, pretrained=args.pretrained)
+    else:
+        model = build_model(num_classes=num_classes, phase=args.phase, pretrained=args.pretrained, dropout=args.dropout)
+        
     model = model.to(device)
 
     class_weights = train_loader.dataset.get_class_weights().to(device) if args.loss == 'focal' else None
@@ -367,14 +410,37 @@ def main():
                     
     apply_freeze_strategy(model, args.freeze_strategy)
 
-    backbone_params = [p for p in model.backbone.parameters() if p.requires_grad]
-    new_params = [p for n, p in model.named_parameters() if 'backbone' not in n and p.requires_grad]
-    optimizer = optim.AdamW([
-        {'params': backbone_params, 'lr': args.lr * 0.1}, 
-        {'params': new_params, 'lr': args.lr},
-    ], weight_decay=args.weight_decay)
+    if args.baseline:
+        head_params = []
+        backbone_params = []
+        for n, p in model.named_parameters():
+            if not p.requires_grad: continue
+            if 'head' in n or 'fc' in n or 'classifier' in n:
+                head_params.append(p)
+            else:
+                backbone_params.append(p)
+        optimizer = optim.AdamW([
+            {'params': backbone_params, 'lr': args.lr * 0.1}, 
+            {'params': head_params, 'lr': args.lr},
+        ], weight_decay=args.weight_decay)
+    else:
+        backbone_params = [p for p in model.backbone.parameters() if p.requires_grad]
+        if args.mlfi_warmup > 0:
+            mlfi_params = [p for n, p in model.named_parameters() if 'mlfi' in n and p.requires_grad]
+            other_new_params = [p for n, p in model.named_parameters() if 'backbone' not in n and 'mlfi' not in n and p.requires_grad]
+            optimizer = optim.AdamW([
+                {'params': backbone_params, 'lr': args.lr * 0.1}, 
+                {'params': mlfi_params, 'lr': args.lr, 'is_mlfi': True},
+                {'params': other_new_params, 'lr': args.lr},
+            ], weight_decay=args.weight_decay)
+        else:
+            new_params = [p for n, p in model.named_parameters() if 'backbone' not in n and p.requires_grad]
+            optimizer = optim.AdamW([
+                {'params': backbone_params, 'lr': args.lr * 0.1}, 
+                {'params': new_params, 'lr': args.lr},
+            ], weight_decay=args.weight_decay)
 
-    scheduler = get_cosine_schedule_with_warmup(optimizer, args.warmup_epochs, args.epochs)
+    scheduler = get_cosine_schedule_with_warmup(optimizer, args.warmup_epochs, args.epochs, args.mlfi_warmup)
     scaler = GradScaler('cuda' if torch.cuda.is_available() else 'cpu')
     writer = SummaryWriter(log_dir=os.path.join(run_dir, 'tb_logs'))
 
@@ -387,16 +453,20 @@ def main():
         start_epoch = ckpt['epoch'] + 1
         best_f1 = ckpt.get('best_f1', 0.0)
 
+    is_baseline = bool(args.baseline)
+
     print(f"\n  Starting training: {args.epochs} epochs")
     epochs_pbar = tqdm(range(start_epoch, args.epochs), desc="Training Epochs", total=args.epochs - start_epoch)
     for epoch in epochs_pbar:
         
         train_loss, train_acc, train_f1 = train_one_epoch(
-            model, train_loader, criterion, optimizer, scaler, device, use_geo, epoch, logger
+            model, train_loader, criterion, optimizer, scaler, device, use_geo, epoch, logger, args.grad_accum_steps,
+            is_baseline=is_baseline
         )
 
         val_loss, val_acc, val_f1, val_prec = validate(
-            model, val_loader, criterion, device, use_geo, epoch, logger
+            model, val_loader, criterion, device, use_geo, epoch, logger,
+            shuffle_geo=args.shuffle_geo, is_baseline=is_baseline
         )
 
         scheduler.step()
@@ -426,8 +496,9 @@ def main():
             }, os.path.join(run_dir, 'best_model.pth'))
             logger.info(f"*** New best model saved! Val Macro-F1: {val_f1:.4f} ***")
 
-        if (epoch + 1) % 10 == 0:
-            torch.save({'epoch': epoch, 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'best_f1': best_f1, 'config': vars(args)}, os.path.join(run_dir, f'checkpoint_epoch{epoch+1}.pth'))
+        # Periodic checkpoints disabled to save disk (each ckpt ~500MB-1GB)
+        # if (epoch + 1) % 10 == 0:
+        #     torch.save({'epoch': epoch, 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'best_f1': best_f1, 'config': vars(args)}, os.path.join(run_dir, f'checkpoint_epoch{epoch+1}.pth'))
         
         epochs_pbar.set_postfix({'val_f1': f"{val_f1:.4f}", 'best_f1': f"{best_f1:.4f}", 'lr': f"{current_lr:.6f}"})
 

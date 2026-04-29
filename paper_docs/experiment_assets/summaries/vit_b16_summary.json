@@ -1,0 +1,10 @@
+{
+  "split": "test",
+  "checkpoint": "runs/paper_baseline_vit_b16_20260429_015250/best_model.pth",
+  "phase": 3,
+  "top1_accuracy": 0.8999147485080989,
+  "top5_accuracy": 0.9751065643648764,
+  "macro_precision": 0.9014020437292255,
+  "macro_f1": 0.8810663391147104,
+  "weighted_f1": 0.8951076769208588
+}

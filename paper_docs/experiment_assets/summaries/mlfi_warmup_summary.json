@@ -1,0 +1,10 @@
+{
+  "split": "test",
+  "checkpoint": "runs/paper_mlfi_warmup_fix_20260429_025717/best_model.pth",
+  "phase": 3,
+  "top1_accuracy": 0.8719522591645353,
+  "top5_accuracy": 0.9734015345268542,
+  "macro_precision": 0.87844090436375,
+  "macro_f1": 0.8572081376093437,
+  "weighted_f1": 0.8676259693153797
+}
