@@ -1,0 +1,101 @@
+﻿Total images: 61083
+- Butterflies: 60380
+- Plants: 703
+**Total images:** 61083
+- Butterflies: 60380
+- Plants: 703
+
+## 1. Images per Species
+
+### Butterflies
+
+| Species | Count |
+|---|---|
+| Papilio protenor | 203 |
+| Telicota bambusae | 199 |
+| Euploea mulciber | 199 |
+| Kaniska canace | 192 |
+| Notocrypta curvifascia | 192 |
+| Papilio chaon | 191 |
+| Pelopidas agna | 191 |
+| Mycalesis mineus | 188 |
+| Tarucus nara | 182 |
+| Athyma selenophora | 181 |
+| Tarucus balkanica | 180 |
+| Baoris farri | 179 |
+| Anthene emolus | 179 |
+| Pieris canidia | 177 |
+| Athyma perius | 176 |
+| Parthenos sylvia | 176 |
+| Borbo cinnara | 176 |
+| Pelopidas conjuncta | 175 |
+| Tagiades japetus | 173 |
+| Vanessa cardui | 173 |
+| Loxura atymnus | 172 |
+| Caltoris kumara | 172 |
+| Symbrenthia lilaea | 172 |
+| Papilio helenus | 171 |
+| Halpe porus | 170 |
+| Rapala varuna | 170 |
+| Erionota torus | 169 |
+| Delias pasithoe | 169 |
+| Pelopidas mathias | 169 |
+| Doleschallia bisaltide | 169 |
+
+**Total: 60380 images across 969 unique values**
+*(showing top 30, 939 more with 54995 images)*
+
+### Plants
+
+| Species | Count |
+|---|---|
+| Tridax procumbens | 19 |
+| Vachellia nilotica | 18 |
+| Abrus precatorius | 18 |
+| Eranthemum roseum | 18 |
+| Ruellia prostrata | 17 |
+| Echinops echinatus | 17 |
+| Hiptage benghalensis | 17 |
+| Vigna radiata | 16 |
+| Abutilon indicum | 15 |
+| Ficus racemosa | 14 |
+| Plumbago zeylanica | 14 |
+| Mimosa pudica | 14 |
+| Libidibia coriaria | 13 |
+| Peristrophe paniculata | 12 |
+| Boerhavia diffusa | 12 |
+| Prinsepia utilis | 11 |
+| Hygrophila auriculata | 11 |
+| Strobilanthes callosus | 10 |
+| Hydnocarpus pentandra | 10 |
+| Trigonella emodi | 10 |
+| Areca catechu | 10 |
+| Vachellia leucophloea | 9 |
+| Vigna unguiculata | 9 |
+| Borassus flabellifer | 9 |
+| Tragia plukenetii | 8 |
+| Asystasia gangetica | 8 |
+| Rostellularia crinita | 8 |
+| Barleria cristata | 8 |
+| Mimosa hamata | 8 |
+| Alysicarpus vaginalis | 8 |
+
+**Total: 703 images across 139 unique values**
+*(showing top 30, 109 more with 332 images)*
+
+## 5. Life Stage Distribution (Butterflies)
+
+| Life Stage | Count |
+|---|---|
+| Adult/Unknown | 50504 |
+| Early Stage | 9729 |
+
+**Total: 60380 images across 2 unique values**
+
+## 7. Split Distribution
+
+| Split | Count | % |
+|---|---|---|
+| train | 48428 | 79.3% |
+| val | 5628 | 9.2% |
+| test | 7027 | 11.5% |
