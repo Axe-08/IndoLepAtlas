@@ -1,0 +1,10 @@
+{
+  "split": "test",
+  "checkpoint": "runs/paper_baseline_effnet_b5_20260429_034719/best_model.pth",
+  "phase": 3,
+  "top1_accuracy": 0.8695652173913043,
+  "top5_accuracy": 0.9705029838022166,
+  "macro_precision": 0.8733466034148599,
+  "macro_f1": 0.8592246825991341,
+  "weighted_f1": 0.8656716022652094
+}
