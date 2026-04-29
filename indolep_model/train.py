@@ -496,8 +496,9 @@ def main():
             }, os.path.join(run_dir, 'best_model.pth'))
             logger.info(f"*** New best model saved! Val Macro-F1: {val_f1:.4f} ***")
 
-        if (epoch + 1) % 10 == 0:
-            torch.save({'epoch': epoch, 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'best_f1': best_f1, 'config': vars(args)}, os.path.join(run_dir, f'checkpoint_epoch{epoch+1}.pth'))
+        # Periodic checkpoints disabled to save disk (each ckpt ~500MB-1GB)
+        # if (epoch + 1) % 10 == 0:
+        #     torch.save({'epoch': epoch, 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'best_f1': best_f1, 'config': vars(args)}, os.path.join(run_dir, f'checkpoint_epoch{epoch+1}.pth'))
         
         epochs_pbar.set_postfix({'val_f1': f"{val_f1:.4f}", 'best_f1': f"{best_f1:.4f}", 'lr': f"{current_lr:.6f}"})
 

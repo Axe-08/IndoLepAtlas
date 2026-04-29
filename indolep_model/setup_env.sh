@@ -4,19 +4,20 @@
 
 set -e
 
-ENV_NAME="butterfly"
+ENV_NAME="indolep_env"
 
-echo "=== Creating conda environment: $ENV_NAME ==="
+echo "=== Creating micromamba environment: $ENV_NAME ==="
 
 # Check if env already exists
-if conda env list | grep -q "$ENV_NAME"; then
+if micromamba env list | grep -q "$ENV_NAME"; then
     echo "Environment '$ENV_NAME' already exists. Activating..."
 else
-    conda create -n "$ENV_NAME" python=3.10 -y
+    micromamba create -n "$ENV_NAME" python=3.10 -y
 fi
 
 # Activate
-source activate "$ENV_NAME" 2>/dev/null || conda activate "$ENV_NAME"
+eval "$(micromamba shell hook --shell=bash)"
+micromamba activate "$ENV_NAME"
 
 echo "=== Installing PyTorch (CUDA 12.4 compatible) ==="
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
