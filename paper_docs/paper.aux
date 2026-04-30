@@ -18,53 +18,77 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Fine-Grained Visual Classification}{2}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Insect and Butterfly Classification}{2}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Geotemporal Features in Ecological ML}{2}{subsection.3.3}\protected@file@percent }
-\citation{wah2011cub}
-\citation{vanhorn2018inaturalist}
 \@writefile{toc}{\contentsline {section}{\numberline {4}IndoLepAtlas Dataset}{3}{section.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Collection and Curation}{3}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Taxonomic and Geographic Coverage}{3}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Unique Features: Early Stages and Host Plants}{3}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Class Distribution and Evaluation Protocol}{3}{subsection.4.4}\protected@file@percent }
+\citation{wah2011cub}
+\citation{vanhorn2018inaturalist}
 \citation{liu2022convnext}
-\citation{lin2017focal}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison with existing fine-grained classification datasets.}}{4}{table.caption.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Coverage Gap Analysis}{4}{subsection.4.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces IndoLepAtlas species representation in iNaturalist India.}}{4}{table.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:dataset_comparison}{{1}{4}{Comparison with existing fine-grained classification datasets}{table.caption.1}{}}
+\newlabel{tab:inat_coverage}{{1}{4}{IndoLepAtlas species representation in iNaturalist India}{table.caption.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Comparison with existing fine-grained classification datasets.}}{4}{table.caption.2}\protected@file@percent }
+\newlabel{tab:dataset_comparison}{{2}{4}{Comparison with existing fine-grained classification datasets}{table.caption.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Experimental Setup}{4}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Core Findings}{4}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Unit I: Long-Tail Loss Dynamics (30 Epochs)}{4}{subsection.6.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Unit~I training curves: validation loss and accuracy over 30 epochs for all four loss--sampling configurations.}}{4}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:unit1_curves}{{1}{4}{Unit~I training curves: validation loss and accuracy over 30 epochs for all four loss--sampling configurations}{figure.caption.2}{}}
 \citation{lin2017focal}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Unit~I metric comparison: Top-1 accuracy, Macro-F1, Dense and Sparse accuracy across loss--sampling strategies.}}{5}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:unit1_bars}{{2}{5}{Unit~I metric comparison: Top-1 accuracy, Macro-F1, Dense and Sparse accuracy across loss--sampling strategies}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Unit II: Feature-Fusion Ablation (40 Epochs)}{5}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Core Findings}{5}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Unit I: Long-Tail Loss Dynamics (30 Epochs)}{5}{subsection.6.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Unit~I training curves: validation loss and accuracy over 30 epochs for all four loss--sampling configurations.}}{5}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:unit1_curves}{{1}{5}{Unit~I training curves: validation loss and accuracy over 30 epochs for all four loss--sampling configurations}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Unit~I metric comparison: Top-1 accuracy, Macro-F1, Dense and Sparse accuracy across loss--sampling strategies.}}{5}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:unit1_bars}{{2}{5}{Unit~I metric comparison: Top-1 accuracy, Macro-F1, Dense and Sparse accuracy across loss--sampling strategies}{figure.caption.4}{}}
+\citation{lin2017focal}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Unit II: Feature-Fusion Ablation (40 Epochs)}{6}{subsection.6.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Unit~II training curves: validation loss and accuracy over 40 epochs for Baseline, +CA, and +CA+MLFI architectures.}}{6}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:unit2_curves}{{3}{6}{Unit~II training curves: validation loss and accuracy over 40 epochs for Baseline, +CA, and +CA+MLFI architectures}{figure.caption.5}{}}
 \citation{hou2021coordinate}
 \citation{yuan2025fgbnet}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Unit~II training curves: validation loss and accuracy over 40 epochs for Baseline, +CA, and +CA+MLFI architectures.}}{6}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:unit2_curves}{{3}{6}{Unit~II training curves: validation loss and accuracy over 40 epochs for Baseline, +CA, and +CA+MLFI architectures}{figure.caption.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Unit~II metric comparison: progressive feature-fusion architecture performance.}}{6}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:unit2_bars}{{4}{6}{Unit~II metric comparison: progressive feature-fusion architecture performance}{figure.caption.5}{}}
-\citation{dosovitski2021image}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Unit~II metric comparison: progressive feature-fusion architecture performance.}}{7}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:unit2_bars}{{4}{7}{Unit~II metric comparison: progressive feature-fusion architecture performance}{figure.caption.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Unit III: Transfer Learning Layer Freezing (40 Epochs)}{7}{subsection.6.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Unit~III training curves: validation loss and accuracy over 40 epochs for all four layer-freezing strategies.}}{7}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:unit3_curves}{{5}{7}{Unit~III training curves: validation loss and accuracy over 40 epochs for all four layer-freezing strategies}{figure.caption.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Unit~III metric comparison: layer-freezing strategy performance (see Table~\ref {tab:master}, Unit~III rows).}}{7}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:unit3_bars}{{6}{7}{Unit~III metric comparison: layer-freezing strategy performance (see Table~\ref {tab:master}, Unit~III rows)}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Cross-Unit Analysis}{8}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Stratum-Level Performance}{8}{subsection.7.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Dense vs Sparse accuracy across all 11 configurations, highlighting the stratum-equalising effect of balanced sampling and attention mechanisms.}}{8}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:stratum}{{7}{8}{Dense vs Sparse accuracy across all 11 configurations, highlighting the stratum-equalising effect of balanced sampling and attention mechanisms}{figure.caption.8}{}}
+\citation{dosovitski2021image}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Unit~III training curves: validation loss and accuracy over 40 epochs for all four layer-freezing strategies.}}{8}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:unit3_curves}{{5}{8}{Unit~III training curves: validation loss and accuracy over 40 epochs for all four layer-freezing strategies}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Unit~III metric comparison: layer-freezing strategy performance (see Table~\ref {tab:master}, Unit~III rows).}}{8}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:unit3_bars}{{6}{8}{Unit~III metric comparison: layer-freezing strategy performance (see Table~\ref {tab:master}, Unit~III rows)}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Cross-Unit Analysis}{9}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Stratum-Level Performance}{9}{subsection.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Dense vs Sparse accuracy across all 11 configurations, highlighting the stratum-equalising effect of balanced sampling and attention mechanisms.}}{9}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:stratum}{{7}{9}{Dense vs Sparse accuracy across all 11 configurations, highlighting the stratum-equalising effect of balanced sampling and attention mechanisms}{figure.caption.9}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Top-5 Accuracy Saturation}{9}{subsection.7.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Radar chart comparing the best configuration from each unit across five evaluation axes.}}{9}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:radar}{{8}{9}{Radar chart comparing the best configuration from each unit across five evaluation axes}{figure.caption.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Complete 11-configuration ablation summary.}}{9}{table.caption.10}\protected@file@percent }
-\newlabel{tab:master}{{2}{9}{Complete 11-configuration ablation summary}{table.caption.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{9}{section.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Radar chart comparing the best configuration from each unit across five evaluation axes.}}{10}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:radar}{{8}{10}{Radar chart comparing the best configuration from each unit across five evaluation axes}{figure.caption.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Complete 11-configuration ablation summary.}}{10}{table.caption.11}\protected@file@percent }
+\newlabel{tab:master}{{3}{10}{Complete 11-configuration ablation summary}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Model Comparison Study}{10}{section.8}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Model comparison on the test set (40 epochs, CE loss, balanced sampling).}}{11}{table.caption.12}\protected@file@percent }
+\newlabel{tab:model_comparison}{{4}{11}{Model comparison on the test set (40 epochs, CE loss, balanced sampling)}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Training Dynamics}{11}{subsection.8.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Validation metrics over 40 epochs for the two top-performing models.}}{11}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:train_top_models}{{9}{11}{Validation metrics over 40 epochs for the two top-performing models}{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Training and validation loss: Geotemporal (left) vs Geo-Shuffled control (right). The genuine geotemporal model achieves lower final validation loss, confirming learned biogeographic priors.}}{12}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:train_geo_ablation}{{10}{12}{Training and validation loss: Geotemporal (left) vs Geo-Shuffled control (right). The genuine geotemporal model achieves lower final validation loss, confirming learned biogeographic priors}{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Validation metrics for baseline architectures over 40 epochs.}}{12}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:train_baselines}{{11}{12}{Validation metrics for baseline architectures over 40 epochs}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Per-Stratum Analysis}{12}{subsection.8.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Dense ($\geq $50 samples) vs Sparse ($<$50 samples) performance across models.}}{12}{table.caption.16}\protected@file@percent }
+\newlabel{tab:stratum_comparison}{{5}{12}{Dense ($\geq $50 samples) vs Sparse ($<$50 samples) performance across models}{table.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Confusion Analysis}{13}{subsection.8.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Confusion matrices for the two top-performing models on the 966-class test set.}}{13}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:confusion_top}{{12}{13}{Confusion matrices for the two top-performing models on the 966-class test set}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Confusion matrices for baseline architectures. ResNet-101 shows diffuse off-diagonal errors across the full class space, while EfficientNet-B5 produces a near-diagonal pattern with errors concentrated in congeneric pairs.}}{13}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:confusion_baselines}{{13}{13}{Confusion matrices for baseline architectures. ResNet-101 shows diffuse off-diagonal errors across the full class space, while EfficientNet-B5 produces a near-diagonal pattern with errors concentrated in congeneric pairs}{figure.caption.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Top confused species pairs by model (test set misclassification count).}}{14}{table.caption.19}\protected@file@percent }
+\newlabel{tab:top_confused}{{6}{14}{Top confused species pairs by model (test set misclassification count)}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}Key Findings from Model Comparison}{14}{subsection.8.4}\protected@file@percent }
 \citation{amarathunga2022thrips}
 \citation{snell2017prototypical}
 \citation{feichtenhofer2022masked}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{10}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Discussion}{15}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{15}{section.10}\protected@file@percent }
 \bibstyle{plainnat}
 \bibcite{yuan2025fgbnet}{{1}{2025}{{Yuan et~al.}}{{}}}
 \bibcite{hou2021coordinate}{{2}{2021}{{Hou et~al.}}{{}}}
@@ -78,4 +102,4 @@
 \bibcite{loshchilov2017sgdr}{{10}{2017}{{Loshchilov and Hutter}}{{}}}
 \bibcite{wah2011cub}{{11}{2011}{{Wah et~al.}}{{}}}
 \bibcite{vanhorn2018inaturalist}{{12}{2018}{{Van~Horn et~al.}}{{}}}
-\gdef \@abspage@last{11}
+\gdef \@abspage@last{17}

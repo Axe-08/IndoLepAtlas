@@ -41,8 +41,8 @@
 | Pelopidas mathias | 169 |
 | Delias pasithoe | 169 |
 
-**Total: 60641 images across 970 unique values**
-*(showing top 30, 940 more with 55254 images)*
+**Total: 60641 images across 967 unique values**
+*(showing top 30, 937 more with 55254 images)*
 
 ### Plants
 
@@ -79,8 +79,8 @@
 | Mimosa hamata | 8 |
 | Alysicarpus vaginalis | 8 |
 
-**Total: 703 images across 139 unique values**
-*(showing top 30, 109 more with 332 images)*
+**Total: 703 images across 129 unique values**
+*(showing top 30, 99 more with 332 images)*
 
 ## 2. Images per Family
 
@@ -97,7 +97,6 @@
 | Hesperiidae | 12361 |
 | Riodinidae | 1132 |
 
-**Total: count123611698518054582661321132151 images across 8 unique values**
 
 ### Plants
 
@@ -124,7 +123,6 @@
 | rugosa | 4 |
 | integrifolia | 3 |
 
-**Total: count12910220623174527681534191622284192611120819517121112211131311184123629422111212 images across 66 unique values**
 
 ## 3. Geographic Distribution (by State)
 
