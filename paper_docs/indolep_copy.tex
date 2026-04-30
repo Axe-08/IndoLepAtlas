@@ -34,10 +34,10 @@
 %
 \titlerunning{IndoLepAtlas: An India--Specific Lepidoptera Dataset}
 %
-\authorrunning{A. Bansal and K. Chaturvedi}
+\authorrunning{A. S. Bansal and K. Chaturvedi}
 %
 \author{
-Akshit Bansal\orcidID{0009-0001-9084-6928} \and
+Akshit S. Bansal\orcidID{0009-0001-9084-6928} \and
 Kriti Chaturvedi\orcidID{0009-0002-0897-5585}
 }
 %
@@ -271,7 +271,7 @@ IndoLepAtlas comprises 61,344 images (60,641 butterflies across 967 species + 70
 Images lacking location or date (cyclically encoded) use a learned "unknown" embedding token during geotemporal fusion.
 
 \subsection{Dataset Quality Validation}
-For automated bbox verification, 100 random images per subset are spot-checked and failures are then re-annotated via CVAT. To maintain taxonomic consistency, species labels are inherited from expert-curated \href{https://www.ifoundbutterflies.org}{IFoundButterflies} directory structure, cross-referenced against Indian butterfly field guides~\cite{kehimkar2016butterflies}. Geographic/seasonal distributions are cross-referenced against known species ranges, the confusion matrix analysis (Section~6) confirms systematic confusion occurs between congeneric species.
+For automated bbox verification, 100 random images per subset are spot-checked and failures are then re-annotated via CVAT. To maintain taxonomic consistency, species labels are inherited from expert-curated \href{https://www.ifoundbutterflies.org}{IFoundButterflies} directory structure, cross-referenced against Indian butterfly field guides~\cite{kehimkar2016butterflies}. Geographic/seasonal distributions are cross-referenced against known species ranges, the confusion matrix analysis confirms systematic confusion occurs between congeneric species.
 
 \subsection{Coverage Gap Analysis}
 \begin{table}[H]
@@ -434,14 +434,14 @@ Freeze Late & 84.33 & 84.02 & 83.15 & \textbf{86.71} \\
 \end{tabular}
 \label{tab:unit3_transfer}
 \end{table}
-\begin{figure}
+\begin{figure}[H]
     \centering
-    \begin{minipage}{0.48\linewidth}
+    \begin{minipage}{0.6\linewidth}
         \centering
         \includegraphics[width=\linewidth]{report_assets/report_assets/plots/unit3_training_curves.png}
         \caption{Unit III training curves.} \label{fig9}
     \end{minipage}\hfill
-    \begin{minipage}{0.48\linewidth}
+    \begin{minipage}{0.6\linewidth}
         \centering
         \includegraphics[width=\linewidth]{report_assets/report_assets/plots/unit3_bar_comparison.png}
         \caption{Unit III metric comparison.} \label{fig10}
@@ -473,7 +473,8 @@ Geo-Shuffled$^*$ & 40.8M & 86.36 & 97.12 & 86.41 & 84.57 & 85.86 \\
 \raggedright\scriptsize{$^*$Geo-Shuffled: zone/month labels randomly permuted at inference to ablate geotemporal signal.}
 \end{table}
 % --- Training curves and loss: ViT-B/16, Geotemporal, Geo-Shuffled ---
-\begin{figure}[H]
+\newpage
+\begin{figure}
     \centering
     \begin{minipage}{0.24\linewidth}\centering
         \includegraphics[width=\linewidth]{experiment_assets/training_curves/vit_b16_metrics.png}\\
@@ -491,7 +492,8 @@ Geo-Shuffled$^*$ & 40.8M & 86.36 & 97.12 & 86.41 & 84.57 & 85.86 \\
         \includegraphics[width=\linewidth]{experiment_assets/training_curves/geotemporal_loss.png}\\
         {\scriptsize (d) Geotemporal loss}
     \end{minipage}
-    \vspace{0.3em}
+\end{figure}
+\begin{figure}
     \begin{minipage}{0.24\linewidth}\centering
         \includegraphics[width=\linewidth]{experiment_assets/training_curves/geo_shuffled_metrics.png}\\
         {\scriptsize (e) Geo-Shuffled metrics}
@@ -577,7 +579,7 @@ Geo-Shuffled$^*$ & 40.8M & 86.36 & 97.12 & 86.41 & 84.57 & 85.86 \\
     \end{tabular}
     \label{tab:per_stratum_analysis}
 \end{table}
-\subsection{Confusion Matrix Analysis}
+\subsection{Confusion Matrix Analysis} 
 \begin{table}[H]
     \centering
     \caption{Top confusion pairs per model.}
@@ -648,40 +650,40 @@ The authors have no competing interests to declare that are relevant to the cont
 \begin{thebibliography}{16}
 
 \bibitem{yuan2025fgbnet}
-Yuan, Y. et~al.: FGBNet: A Bio-Subspecies Classification Network with Multi-Level Feature Interaction. \emph{Diversity} (2025). \url{https://doi.org/10.3390/d17040237}
+Yuan, Y. et~al.: FGBNet: A Bio-Subspecies Classification Network with Multi-Level Feature Interaction. \emph{Diversity} \textbf{17}(4), 237 (2025). \url{https://doi.org/10.3390/d17040237}
 
 \bibitem{hou2021coordinate}
-Hou, Q., Zhou, D., Feng, J.: Coordinate Attention for Efficient Mobile Network Design. In: \emph{CVPR} (2021). \url{https://arxiv.org/abs/2103.02907}
+Hou, Q., Zhou, D., Feng, J.: Coordinate Attention for Efficient Mobile Network Design. In: \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pp.~13713--13722 (2021). \url{https://arxiv.org/abs/2103.02907}
 
 \bibitem{liu2022convnext}
-Liu, Z., Mao, H., Wu, C.-Y., Feichtenhofer, C., Darrell, T., Xie, S.: A ConvNet for the 2020s. In: \emph{CVPR} (2022). \url{https://arxiv.org/abs/2201.03545}
+Liu, Z., Mao, H., Wu, C.-Y., Feichtenhofer, C., Darrell, T., Xie, S.: A ConvNet for the 2020s. In: \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pp.~11976--11986 (2022). \url{https://arxiv.org/abs/2201.03545}
 
 \bibitem{hu2018squeeze}
-Hu, J., Shen, L., Sun, G.: Squeeze-and-Excitation Networks. In: \emph{CVPR} (2018). \url{https://arxiv.org/abs/1709.01507}
+Hu, J., Shen, L., Sun, G.: Squeeze-and-Excitation Networks. In: \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pp.~7132--7141 (2018). \url{https://arxiv.org/abs/1709.01507}
 
 \bibitem{lin2017focal}
-Lin, T.-Y., Goyal, P., Girshick, R., He, K., Doll\'{a}r, P.: Focal Loss for Dense Object Detection. In: \emph{ICCV} (2017). \url{https://arxiv.org/abs/1708.02002}
+Lin, T.-Y., Goyal, P., Girshick, R., He, K., Doll\'{a}r, P.: Focal Loss for Dense Object Detection. In: \emph{Proceedings of the IEEE International Conference on Computer Vision (ICCV)}, pp.~2980--2988 (2017). \url{https://arxiv.org/abs/1708.02002}
 
 \bibitem{amarathunga2022thrips}
 Amarathunga, D.C. et~al.: Fine-grained image classification of microscopic insect pest species. \emph{Computers and Electronics in Agriculture} (2022). \url{https://doi.org/10.1016/j.compag.2022.107462}
 
 \bibitem{snell2017prototypical}
-Snell, J., Swersky, K., Zemel, R.: Prototypical Networks for Few-Shot Learning. In: \emph{NeurIPS} (2017). \url{https://arxiv.org/abs/1703.05175}
+Snell, J., Swersky, K., Zemel, R.: Prototypical Networks for Few-Shot Learning. In: \emph{Advances in Neural Information Processing Systems (NeurIPS)} \textbf{30}, pp.~4077--4087 (2017). \url{https://arxiv.org/abs/1703.05175}
 
 \bibitem{feichtenhofer2022masked}
-Feichtenhofer, C., Fan, H., Li, Y., He, K.: Masked autoencoders as spatiotemporal learners. In: \emph{NeurIPS} (2022)
+Feichtenhofer, C., Fan, H., Li, Y., He, K.: Masked autoencoders as spatiotemporal learners. In: \emph{Advances in Neural Information Processing Systems (NeurIPS)} (2022)
 
 \bibitem{dosovitski2021image}
-Dosovitskiy, A. et~al.: An image is worth 16x16 words: Transformers for image recognition at scale. In: \emph{ICLR} (2021). \url{https://arxiv.org/abs/2010.11929}
+Dosovitskiy, A. et~al.: An image is worth 16x16 words: Transformers for image recognition at scale. In: \emph{International Conference on Learning Representations (ICLR)} (2021). \url{https://arxiv.org/abs/2010.11929}
 
 \bibitem{loshchilov2017sgdr}
-Loshchilov, I., Hutter, F.: SGDR: Stochastic Gradient Descent with Warm Restarts. In: \emph{ICLR} (2017). \url{https://arxiv.org/abs/1608.03983}
+Loshchilov, I., Hutter, F.: SGDR: Stochastic Gradient Descent with Warm Restarts. In: \emph{International Conference on Learning Representations (ICLR)} (2017). \url{https://arxiv.org/abs/1608.03983}
 
 \bibitem{wah2011cub}
-Wah, C., Branson, S., Welinder, P., Perona, P., Belongie, S.: The Caltech-UCSD Birds-200-2011 Dataset. Technical Report CNS-TR-2011-001, Caltech (2011)
+Wah, C., Branson, S., Welinder, P., Perona, P., Belongie, S.: The Caltech-UCSD Birds-200-2011 Dataset. Technical Report CNS-TR-2011-001, Caltech (2011). \url{http://www.vision.caltech.edu/datasets/cub_200_2011/}
 
 \bibitem{vanhorn2018inaturalist}
-Van~Horn, G. et~al.: The iNaturalist Species Classification and Detection Dataset. In: \emph{CVPR} (2018). \url{https://arxiv.org/abs/1707.06642}
+Van~Horn, G. et~al.: The iNaturalist Species Classification and Detection Dataset. In: \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pp.~8769--8777 (2018). \url{https://arxiv.org/abs/1707.06642}
 
 \bibitem{amarathunga2021slr}
 Amarathunga, D.C., Poskitt, J., Martini, A., Moreno-Garcia, J.: Methods of insect image capture and classification: a systematic literature review. \emph{Smart Agricultural Technology} \textbf{1}, 100023 (2021). \url{https://doi.org/10.1016/j.atech.2021.100023}
@@ -690,10 +692,10 @@ Amarathunga, D.C., Poskitt, J., Martini, A., Moreno-Garcia, J.: Methods of insec
 Alfatemi, A., Abidin, Z.Z., Husin, Z., Abdul Aziz, K.A.: Multi-label classification with deep learning and manual data collection for identifying similar bird species. \emph{Computation} \textbf{12}(4), 77 (2024). \url{https://doi.org/10.3390/computation12040077}
 
 \bibitem{wu2019ip102}
-Wu, X., Zhan, C., Lai, Y.-K., Cheng, M.-M., Yang, J.: IP102: A large-scale benchmark dataset for insect pest recognition. In: \emph{CVPR}, pp.~8787--8796 (2019)
+Wu, X., Zhan, C., Lai, Y.-K., Cheng, M.-M., Yang, J.: IP102: A large-scale benchmark dataset for insect pest recognition. In: \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pp.~8787--8796 (2019). \url{https://openaccess.thecvf.com/content_CVPR_2019/html/Wu_IP102_A_Large-Scale_Benchmark_Dataset_for_Insect_Pest_Recognition_CVPR_2019_paper.html}
 
 \bibitem{kehimkar2016butterflies}
-Kehimkar, I.: Butterflies of India. Bombay Natural History Society, Mumbai (2016)
+Kehimkar, I.: Butterflies of India. Bombay Natural History Society, Mumbai (2016). \url{https://www.journals.uchicago.edu/doi/10.1086/656880}
 
 \end{thebibliography}
 
