@@ -1,0 +1,582 @@
+% supplementary.tex
+\documentclass[runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+\urlstyle{rm}
+
+\graphicspath{{report_assets/report_assets/}{experiment_assets/training_curves/}{experiment_assets/confusion_matrices/}}
+
+\begin{document}
+\title{Supplementary Material: IndoLepAtlas: A Fine-Grained Dataset of Indian Lepidoptera with Geotemporal Metadata and Baseline Classification Study}
+\titlerunning{IndoLepAtlas Supplementary Material}
+\author{Akshit S. Bansal\orcidID{0009-0001-9084-6928} \and Kriti Chaturvedi\orcidID{0009-0002-0897-5585}}
+\authorrunning{A. S. Bansal and K. Chaturvedi}
+\institute{\email{23ucs529@lnmiit.ac.in}, \email{23ucs625@lnmiit.ac.in}\\
+LNM Institute of Information Technology, Jaipur-302031, Rajasthan}
+\maketitle
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\section{Dataset Availability}
+The complete IndoLepAtlas dataset, including images, annotations, and metadata, is publicly available at: \href{https://huggingface.co/datasets/Butterfree/IndoLepAtlas}{IndoLepAtlas (Hugging Face)}.
+
+\section{Extended Dataset Statistics}
+\subsection{Taxonomic Distribution}
+The IndoLepAtlas dataset encompasses 60,641 images of butterflies across 967 species and 6 families. Additionally, it contains 703 images of 129 larval host plant species. The distribution of butterfly images by family is highly skewed towards Nymphalidae (29.8\%) and Lycaenidae (28.0\%), reflecting their prevalence in the Indian subcontinent.
+
+\begin{table}[H]
+\centering
+\caption{Detailed taxonomic distribution of butterfly species in IndoLepAtlas.}
+\label{tab:s_family_dist}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Family} & \textbf{Number of Images} & \textbf{Percentage (\%)} \\
+\midrule
+Nymphalidae & 18,054 & 29.8 \\
+Lycaenidae & 16,985 & 28.0 \\
+Hesperiidae & 12,361 & 20.4 \\
+Pieridae & 6,132 & 10.1 \\
+Papilionidae & 5,826 & 9.6 \\
+Riodinidae & 1,132 & 1.9 \\
+\midrule
+\textbf{Total} & \textbf{60,490} & \textbf{100.0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Geographic Distribution}
+Geographic metadata was mapped to 9 distinct biogeographic zones defined by the Wildlife Institute of India. The dataset exhibits strong geographic bias, with Maharashtra (10,198 images), Karnataka (8,121 images), and Kerala (6,795 images) heavily represented, primarily covering the Western Ghats and Deccan Peninsula.
+
+\subsection{Temporal Distribution}
+Observations peak heavily during the post-monsoon season (October: 7,228 images; November: 5,654 images) and pre-monsoon summer (April: 4,654 images), aligning with known periods of high Lepidoptera activity in India.
+
+\section{Detailed Model Architectures and Hyperparameters}
+\subsection{Architectural Details}
+The proposed baseline model builds upon a ConvNeXt-Tiny backbone pretrained on ImageNet.
+
+\begin{itemize}
+    \item \textbf{Backbone:} ConvNeXt-Tiny, outputting features from four stages with channel dimensions [96, 192, 384, 768].
+    \item \textbf{Coordinate Attention (CA):} Inserted after each of the four stages. A reduction ratio of 32 is used. CA decomposes channel attention into two 1D feature encoding processes along height and width, preserving spatial information critical for identifying localized wing patterns.
+    \item \textbf{Multi-Level Feature Interaction (MLFI):} Detail Information Supplement (DIS) branches extract features from all four stages using adaptive max pooling (size 4x4) and fully connected layers. Features are concatenated in proportions 2:4:1:8, yielding a 1440-dimensional visual feature vector.
+    \item \textbf{Geotemporal Fusion:} A learned embedding layer maps 9 biogeographic zones to a 32-dimensional dense vector. Month of observation is cyclically encoded as $[\sin(2\pi M/12), \cos(2\pi M/12)]$. The 1440-dim visual, 32-dim spatial, and 2-dim temporal vectors are concatenated and passed through a LayerNorm before the final classification head.
+\end{itemize}
+
+\subsection{Training Configurations}
+All models were trained on a DGX V100 cluster. The final comparative models (Table 6 in the main text) were trained with the following hyperparameters:
+
+\begin{table}[H]
+\centering
+\caption{Hyperparameter configurations for the benchmarked models.}
+\label{tab:s_hyperparams}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Parameter} & \textbf{ResNet-101} & \textbf{EfficientNet-B5} & \textbf{ViT-B/16} & \textbf{MLFI Warmup} & \textbf{Geo-Shuffled} & \textbf{Geotemporal (Ours)} \\
+\midrule
+Image Size & 224 & 224 & 224 & 224 & 224 & 224 \\
+Epochs & 40 & 40 & 40 & 40 & 40 & 40 \\
+Batch Size & 32 & 32 & 32 & 32 & 32 & 32 \\
+Grad Accum Steps & 4 & 4 & 4 & 4 & 4 & 4 \\
+Learning Rate & 1e-4 & 1e-4 & 1e-4 & 1e-4 & 1e-4 & 1e-4 \\
+LR Scheduler & Cosine & Cosine & Cosine & Cosine & Cosine & Cosine \\
+Warmup Epochs & 5 & 5 & 5 & 5 & 5 & 5 \\
+Weight Decay & 0.05 & 0.05 & 0.05 & 0.05 & 0.05 & 0.05 \\
+Dropout & 0.3 & 0.3 & 0.3 & 0.3 & 0.3 & 0.3 \\
+Loss Function & CE & CE & CE & CE & CE & CE \\
+Label Smoothing & 0.1 & 0.1 & 0.1 & 0.1 & 0.1 & 0.1 \\
+Sampling & Balanced & Balanced & Balanced & Balanced & Balanced & Balanced \\
+Freezing & None & None & None & None & None & None \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+For the MLFI Warmup configuration, newly initialized MLFI layers were given full learning rates while the pretrained backbone was initialized at 0.1$\times$ the base learning rate to prevent catastrophic forgetting of ImageNet representations during the initial convergence phase.
+
+\section{Per-Epoch Training Curves Data}
+The following table presents the per-epoch training metrics for the final Geotemporal Fusion model.
+\begin{longtable}{ccccccc}
+\caption{Training progression of the Geotemporal model (40 epochs).}
+\label{tab:s_metrics} \\
+\toprule
+\textbf{Epoch} & \textbf{Train Loss} & \textbf{Val Loss} & \textbf{Train Acc} & \textbf{Val Acc} & \textbf{Val F1} & \textbf{Val Precision} \\
+\midrule
+\endfirsthead
+\multicolumn{7}{c}{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\toprule
+\textbf{Epoch} & \textbf{Train Loss} & \textbf{Val Loss} & \textbf{Train Acc} & \textbf{Val Acc} & \textbf{Val F1} & \textbf{Val Precision} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{7}{r}{\textit{Continued on next page...}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+0 & 6.7747 & 6.4821 & 0.0141 & 0.0272 & 0.0125 & 0.0154 \\
+1 & 5.9179 & 5.6410 & 0.1101 & 0.1034 & 0.0702 & 0.0965 \\
+2 & 4.7798 & 4.5976 & 0.2936 & 0.2626 & 0.1895 & 0.2276 \\
+3 & 3.6095 & 3.6075 & 0.4831 & 0.4047 & 0.3418 & 0.3859 \\
+4 & 2.7276 & 2.8010 & 0.6297 & 0.5598 & 0.5028 & 0.5488 \\
+5 & 2.2039 & 2.4067 & 0.7298 & 0.6508 & 0.5988 & 0.6295 \\
+6 & 1.9093 & 2.2093 & 0.7967 & 0.6826 & 0.6507 & 0.6792 \\
+7 & 1.7389 & 2.0452 & 0.8393 & 0.7242 & 0.6825 & 0.7138 \\
+8 & 1.6375 & 1.9294 & 0.8668 & 0.7580 & 0.7213 & 0.7478 \\
+9 & 1.5633 & 1.8705 & 0.8888 & 0.7764 & 0.7447 & 0.7674 \\
+10 & 1.5159 & 1.8253 & 0.8985 & 0.7875 & 0.7592 & 0.7821 \\
+11 & 1.4672 & 1.7832 & 0.9145 & 0.7946 & 0.7646 & 0.7850 \\
+12 & 1.4377 & 1.7543 & 0.9240 & 0.8046 & 0.7837 & 0.8047 \\
+13 & 1.4101 & 1.7064 & 0.9311 & 0.8279 & 0.8006 & 0.8174 \\
+14 & 1.3889 & 1.6911 & 0.9357 & 0.8354 & 0.8093 & 0.8304 \\
+15 & 1.3630 & 1.6709 & 0.9434 & 0.8361 & 0.8124 & 0.8307 \\
+16 & 1.3403 & 1.6441 & 0.9520 & 0.8455 & 0.8196 & 0.8344 \\
+17 & 1.3238 & 1.6315 & 0.9546 & 0.8493 & 0.8245 & 0.8412 \\
+18 & 1.3113 & 1.6224 & 0.9572 & 0.8481 & 0.8220 & 0.8351 \\
+19 & 1.2955 & 1.5933 & 0.9623 & 0.8600 & 0.8332 & 0.8478 \\
+20 & 1.2804 & 1.5793 & 0.9663 & 0.8701 & 0.8407 & 0.8533 \\
+21 & 1.2712 & 1.5768 & 0.9690 & 0.8707 & 0.8454 & 0.8585 \\
+22 & 1.2584 & 1.5637 & 0.9718 & 0.8701 & 0.8471 & 0.8625 \\
+23 & 1.2480 & 1.5568 & 0.9749 & 0.8750 & 0.8489 & 0.8626 \\
+24 & 1.2387 & 1.5462 & 0.9767 & 0.8761 & 0.8459 & 0.8577 \\
+25 & 1.2291 & 1.5368 & 0.9782 & 0.8776 & 0.8500 & 0.8627 \\
+26 & 1.2256 & 1.5290 & 0.9791 & 0.8827 & 0.8565 & 0.8705 \\
+27 & 1.2145 & 1.5297 & 0.9811 & 0.8832 & 0.8538 & 0.8635 \\
+28 & 1.2094 & 1.5208 & 0.9835 & 0.8870 & 0.8562 & 0.8687 \\
+29 & 1.2049 & 1.5123 & 0.9834 & 0.8894 & 0.8607 & 0.8728 \\
+30 & 1.2015 & 1.5069 & 0.9840 & 0.8947 & 0.8663 & 0.8790 \\
+31 & 1.1939 & 1.5052 & 0.9867 & 0.8930 & 0.8661 & 0.8772 \\
+32 & 1.1930 & 1.5036 & 0.9867 & 0.8924 & 0.8646 & 0.8758 \\
+33 & 1.1891 & 1.5046 & 0.9869 & 0.8921 & 0.8633 & 0.8739 \\
+34 & 1.1869 & 1.5000 & 0.9881 & 0.8956 & 0.8652 & 0.8758 \\
+35 & 1.1840 & 1.4993 & 0.9890 & 0.8926 & 0.8620 & 0.8718 \\
+36 & 1.1859 & 1.4970 & 0.9881 & 0.8936 & 0.8626 & 0.8729 \\
+37 & 1.1850 & 1.4979 & 0.9879 & 0.8939 & 0.8649 & 0.8757 \\
+38 & 1.1805 & 1.4971 & 0.9886 & 0.8924 & 0.8622 & 0.8736 \\
+39 & 1.1817 & 1.4952 & 0.9891 & 0.8936 & 0.8670 & 0.8777 \\
+\end{longtable}
+
+\section{Annotation Protocol and Verification}
+Annotations were generated semi-automatically using Grounding DINO with text prompts (`"butterfly . moth . caterpillar . pupa . chrysalis"` for Lepidoptera subjects). 
+The dataset underwent a quality verification process:
+\begin{enumerate}
+    \item 100 random images per subset were spot-checked to verify bounding box coverage.
+    \item Images where automated detection failed were flagged.
+    \item Flagged images were manually re-annotated using CVAT.
+    \item Species labels were inherited directly from the expert-curated source directory structure to ensure taxonomic accuracy.
+\end{enumerate}
+Metadata including species names, location, date, and life stage was extracted via OCR from the original image overlays.
+
+\section{Additional Confusion Matrix Analysis}
+Our analysis reveals that the most frequent misclassifications occur strictly within congeneric species pairs where morphological overlap is extreme. The geotemporal branch successfully resolves several of these pairs by exploiting biogeographic disjoints. For instance:
+
+\begin{itemize}
+    \item \textbf{\textit{Kallima inachus} vs. \textit{Kallima horsfieldii}}: These dead-leaf butterflies are visually near-identical. However, \textit{K. inachus} is found in the Himalayas, while \textit{K. horsfieldii} is endemic to the Western Ghats. The geotemporal model leverages the zone embedding to disambiguate them.
+    \item \textbf{\textit{Pachliopta aristolochiae} (Common Rose) vs. \textit{Pachliopta pandiyana} (Malabar Rose)}: \textit{P. pandiyana} is endemic to the Western Ghats, while \textit{P. aristolochiae} is widespread.
+\end{itemize}
+
+\section{Datasheet for Datasets (Data Card)}
+\subsection{Motivation}
+The dataset was created to address the severe underrepresentation of Indian Lepidoptera in global biodiversity repositories (e.g., iNaturalist) and to provide a high-quality benchmark for fine-grained biological classification that incorporates geotemporal metadata.
+\subsection{Composition}
+The dataset comprises 60,641 images of butterflies across 967 species, and 703 images of 129 larval host plant species. Instances represent individual biological observations, with metadata specifying location (state), observation date, and life stage.
+\subsection{Collection Process}
+Images and metadata were scraped from the expert-curated \href{https://www.ifoundbutterflies.org}{Indian Lepidoptera web atlas}. The data was subsequently filtered, taxonomically verified, and augmented with bounding boxes.
+\subsection{Preprocessing/Cleaning}
+GPS coordinates were binned into 9 discrete biogeographic zones. Dates were converted into a cyclic month encoding. Missing values were preserved and represented using learned ``unknown'' embeddings during model training.
+
+\section{Full Species List}
+The following is a complete list of the Lepidoptera and host plant species included in IndoLepAtlas.
+\begin{longtable}{lll}
+\caption{Full species list} \label{tab:full_species} \\
+\toprule
+\textbf{Species 1} & \textbf{Species 2} & \textbf{Species 3} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Species 1} & \textbf{Species 2} & \textbf{Species 3} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\textit{Continued on next page...}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+\textit{Abisara attenuata} & \textit{Abisara bifasciata} & \textit{Abisara burnii} \\
+\textit{Abisara chela} & \textit{Abisara echerius} & \textit{Abisara fylla} \\
+\textit{Abisara neophron} & \textit{Acraea issoria} & \textit{Acraea terpsicore} \\
+\textit{Actinor radians} & \textit{Acupicta delicatum} & \textit{Acytolepis lilacea} \\
+\textit{Acytolepis puspa} & \textit{Aeromachus dubius} & \textit{Aeromachus jhora} \\
+\textit{Aeromachus kali} & \textit{Aeromachus pygmaeus} & \textit{Aeromachus stigmata} \\
+\textit{Aglais caschmirensis} & \textit{Aglais ladakensis} & \textit{Aglais rizana} \\
+\textit{Agriades jaloka} & \textit{Albulina asiatica} & \textit{Albulina chrysopis} \\
+\textit{Albulina galathea} & \textit{Albulina lehanus} & \textit{Albulina metallica} \\
+\textit{Albulina omphisa} & \textit{Algia fasciata} & \textit{Allotinus drumila} \\
+\textit{Allotinus unicolor} & \textit{Amblypodia anita} & \textit{Ampittia dioscorides} \\
+\textit{Ampittia subvittatus} & \textit{Ancema blanka} & \textit{Ancema ctesia} \\
+\textit{Ancema sudica} & \textit{Ancistroides nigrita} & \textit{Anthene emolus} \\
+\textit{Anthene lycaenina} & \textit{Aporia agathon} & \textit{Aporia harrietae} \\
+\textit{Aporia leucodice} & \textit{Aporia nabellica} & \textit{Appias albina} \\
+\textit{Appias galathea} & \textit{Appias galba} & \textit{Appias indra} \\
+\textit{Appias lalage} & \textit{Appias libythea} & \textit{Appias lyncida} \\
+\textit{Appias olferna} & \textit{Appias wardii} & \textit{Apporasa atkinsoni} \\
+\textit{Araotes lapithis} & \textit{Araschnia dohertyi} & \textit{Argynnis castetsi} \\
+\textit{Argynnis childreni} & \textit{Argynnis hybrida} & \textit{Argynnis hyperbius} \\
+\textit{Argynnis jainadeva} & \textit{Argynnis kamala} & \textit{Argynnis westphali} \\
+\textit{Arhopala abseus} & \textit{Arhopala alea} & \textit{Arhopala amantes} \\
+\textit{Arhopala ammonides} & \textit{Arhopala anthelus} & \textit{Arhopala asinarus} \\
+\textit{Arhopala asopia} & \textit{Arhopala athada} & \textit{Arhopala atrax} \\
+\textit{Arhopala bazaloides} & \textit{Arhopala bazalus} & \textit{Arhopala belphoebe} \\
+\textit{Arhopala birmana} & \textit{Arhopala camdeo} & \textit{Arhopala centaurus} \\
+\textit{Arhopala comica} & \textit{Arhopala curiosa} & \textit{Arhopala dispar} \\
+\textit{Arhopala dodonaea} & \textit{Arhopala eumolphus} & \textit{Arhopala fulla} \\
+\textit{Arhopala ganesa} & \textit{Arhopala hellenore} & \textit{Arhopala khamti} \\
+\textit{Arhopala oenea} & \textit{Arhopala paraganesa} & \textit{Arhopala paramuta} \\
+\textit{Arhopala perimuta} & \textit{Arhopala rama} & \textit{Arhopala silhetensis} \\
+\textit{Arhopala singla} & \textit{Ariadne ariadne} & \textit{Ariadne merione} \\
+\textit{Aricia agestis} & \textit{Arnetta atkinsoni} & \textit{Arnetta mercara} \\
+\textit{Arnetta vindhiana} & \textit{Artipe eryx} & \textit{Astictopterus jama} \\
+\textit{Athyma asura} & \textit{Athyma cama} & \textit{Athyma inara} \\
+\textit{Athyma kanwa} & \textit{Athyma opalina} & \textit{Athyma orientalis} \\
+\textit{Athyma perius} & \textit{Athyma pravara} & \textit{Athyma punctata} \\
+\textit{Athyma ranga} & \textit{Athyma rufula} & \textit{Athyma selenophora} \\
+\textit{Athyma whitei} & \textit{Athyma zeroca} & \textit{Atrophaneura aidoneus} \\
+\textit{Atrophaneura varuna} & \textit{Aulocera padma} & \textit{Aulocera saraswati} \\
+\textit{Aulocera swaha} & \textit{Auzakia danava} & \textit{Azanus jesous} \\
+\textit{Azanus ubaldus} & \textit{Azanus uranus} & \textit{Badamia exclamationis} \\
+\textit{Baltia butleri} & \textit{Baoris chapmani} & \textit{Baoris farri} \\
+\textit{Baoris pagana} & \textit{Baoris unicolor} & \textit{Baracus hampsoni} \\
+\textit{Baracus septentrionum} & \textit{Baracus subditus} & \textit{Belenois aurota} \\
+\textit{Bhagadatta austenia} & \textit{Bhutanitis lidderdalii} & \textit{Bhutanitis ludlowi} \\
+\textit{Bibasis mahintha} & \textit{Bibasis sena} & \textit{Bindahara moorei} \\
+\textit{Bindahara phocides} & \textit{Boloria jerdoni} & \textit{Borbo bevani} \\
+\textit{Borbo cinnara} & \textit{Bothrinia chennelli} & \textit{Bullis buto} \\
+\textit{Burara amara} & \textit{Burara anadi} & \textit{Burara gomata} \\
+\textit{Burara harisa} & \textit{Burara jaina} & \textit{Burara oedipodea} \\
+\textit{Burara vasutana} & \textit{Byasa crassipes} & \textit{Byasa dasarada} \\
+\textit{Byasa latreillei} & \textit{Byasa plutonius} & \textit{Byasa polla} \\
+\textit{Byasa polyeuctes} & \textit{Byblia ilithyia} & \textit{Caleta decidia} \\
+\textit{Caleta elna} & \textit{Caleta roxus} & \textit{Calinaga aborica} \\
+\textit{Calinaga brahma} & \textit{Calinaga buddha} & \textit{Calinaga gautama} \\
+\textit{Callenya melaena} & \textit{Callerebia annada} & \textit{Callerebia baileyi} \\
+\textit{Callerebia dibangensis} & \textit{Callerebia hyagriva} & \textit{Callerebia hybrida} \\
+\textit{Callerebia narasingha} & \textit{Callerebia nirmala} & \textit{Callerebia orixa} \\
+\textit{Callerebia suroia} & \textit{Callerebia watsoni} & \textit{Caltoris aurociliata} \\
+\textit{Caltoris canaraica} & \textit{Caltoris kumara} & \textit{Caltoris philippina} \\
+\textit{Caltoris tulsi} & \textit{Capila jayadeva} & \textit{Capila lidderdali} \\
+\textit{Capila phanaeus} & \textit{Capila pieridoides} & \textit{Capila zennara} \\
+\textit{Caprona agama} & \textit{Caprona alida} & \textit{Caprona ransonnettii} \\
+\textit{Carcharodus alceae} & \textit{Carterocephalus avanti} & \textit{Castalius rosimon} \\
+\textit{Catapaecilma major} & \textit{Catapaecilma subochrea} & \textit{Catochrysops panormus} \\
+\textit{Catochrysops strabo} & \textit{Catopsilia pomona} & \textit{Catopsilia pyranthe} \\
+\textit{Catopsilia scylla} & \textit{Celaenorrhinus ambareesa} & \textit{Celaenorrhinus asmara} \\
+\textit{Celaenorrhinus aurivittata} & \textit{Celaenorrhinus badia} & \textit{Celaenorrhinus dhanada} \\
+\textit{Celaenorrhinus fusca} & \textit{Celaenorrhinus leucocera} & \textit{Celaenorrhinus munda} \\
+\textit{Celaenorrhinus nigricans} & \textit{Celaenorrhinus patula} & \textit{Celaenorrhinus pero} \\
+\textit{Celaenorrhinus plagifera} & \textit{Celaenorrhinus pulomaya} & \textit{Celaenorrhinus putra} \\
+\textit{Celaenorrhinus pyrrha} & \textit{Celaenorrhinus ratna} & \textit{Celaenorrhinus tibetana} \\
+\textit{Celaenorrhinus zea} & \textit{Celastrina argiolus} & \textit{Celastrina gigas} \\
+\textit{Celastrina lavendularis} & \textit{Celatoxia albidisca} & \textit{Celatoxia marginata} \\
+\textit{Cephrenes acalle} & \textit{Cepora nadina} & \textit{Cepora nerissa} \\
+\textit{Cethosia biblis} & \textit{Cethosia cyane} & \textit{Cethosia mahratta} \\
+\textit{Chaetoprocta odata} & \textit{Chamunda chamunda} & \textit{Charana mandarinus} \\
+\textit{Charaxes aristogiton} & \textit{Charaxes eudamippus} & \textit{Charaxes moori} \\
+\textit{Charaxes narcaeus} & \textit{Charaxes schreiber} & \textit{Cheritra freja} \\
+\textit{Cheritrella truncipennis} & \textit{Chersonesia intermedia} & \textit{Chersonesia risa} \\
+\textit{Chilades lajus} & \textit{Chitoria naga} & \textit{Chitoria sordida} \\
+\textit{Chitoria ulupi} & \textit{Choaspes benjaminii} & \textit{Choaspes furcata} \\
+\textit{Choaspes stigmata} & \textit{Chonala masoni} & \textit{Chrysozephyrus disparatus} \\
+\textit{Chrysozephyrus duma} & \textit{Chrysozephyrus dumoides} & \textit{Chrysozephyrus tytleri} \\
+\textit{Cigaritis abnormis} & \textit{Cigaritis conjuncta} & \textit{Cigaritis elima} \\
+\textit{Cigaritis elwesi} & \textit{Cigaritis evansii} & \textit{Cigaritis ictis} \\
+\textit{Cigaritis lilacinus} & \textit{Cigaritis lohita} & \textit{Cigaritis nipalicus} \\
+\textit{Cigaritis rukma} & \textit{Cigaritis rukmini} & \textit{Cigaritis schistacea} \\
+\textit{Cigaritis syama} & \textit{Cigaritis vulcanus} & \textit{Cigaritis zhengweilie} \\
+\textit{Cirrochroa aoris} & \textit{Cirrochroa nicobarica} & \textit{Cirrochroa thais} \\
+\textit{Cirrochroa tyche} & \textit{Coelites nothis} & \textit{Coladenia agni} \\
+\textit{Coladenia agnioides} & \textit{Coladenia hoenei} & \textit{Coladenia indrani} \\
+\textit{Colias eogene} & \textit{Colias erate} & \textit{Colias fieldii} \\
+\textit{Colias ladakensis} & \textit{Colias nilagiriensis} & \textit{Colotis amata} \\
+\textit{Colotis aurora} & \textit{Colotis danae} & \textit{Colotis etrida} \\
+\textit{Colotis fausta} & \textit{Colotis protractus} & \textit{Colotis vestalis} \\
+\textit{Creon cleobis} & \textit{Creteus cyrina} & \textit{Ctenoptilum vasava} \\
+\textit{Cupha erymanthis} & \textit{Cupitha purreea} & \textit{Curetis acuta} \\
+\textit{Curetis bulis} & \textit{Curetis saronis} & \textit{Curetis siva} \\
+\textit{Curetis thetis} & \textit{Cyllogenes suradeva} & \textit{Cyrestis cocles} \\
+\textit{Cyrestis tabula} & \textit{Cyrestis thyodamas} & \textit{Dacalana cotys} \\
+\textit{Dacalana penicilligera} & \textit{Danaus chrysippus} & \textit{Danaus genutia} \\
+\textit{Danaus melanippus} & \textit{Darpa hanria} & \textit{Delias acalis} \\
+\textit{Delias agostina} & \textit{Delias belladonna} & \textit{Delias berinda} \\
+\textit{Delias descombesi} & \textit{Delias eucharis} & \textit{Delias hyparete} \\
+\textit{Delias lativitta} & \textit{Delias pasithoe} & \textit{Delias sanaca} \\
+\textit{Dercas lycorias} & \textit{Dercas verhuelli} & \textit{Deudorix epijarbas} \\
+\textit{Dichorragia nesimachus} & \textit{Dilipa morgiana} & \textit{Discolampa ethion} \\
+\textit{Dodona adonira} & \textit{Dodona deodata} & \textit{Dodona dipoea} \\
+\textit{Dodona durga} & \textit{Dodona egeon} & \textit{Dodona eugenes} \\
+\textit{Dodona longicaudata} & \textit{Dodona ouida} & \textit{Doleschallia bisaltide} \\
+\textit{Drupadia scaeva} & \textit{Elymnias caudata} & \textit{Elymnias hypermnestra} \\
+\textit{Elymnias malelas} & \textit{Elymnias nesaea} & \textit{Elymnias obnubila} \\
+\textit{Elymnias panthera} & \textit{Elymnias patna} & \textit{Elymnias peali} \\
+\textit{Elymnias penanga} & \textit{Elymnias vasudeva} & \textit{Erionota acroleuca} \\
+\textit{Erionota apex} & \textit{Erionota thrax} & \textit{Erionota torus} \\
+\textit{Erynnis pelias} & \textit{Esakiozephyrus icana} & \textit{Ethope himachala} \\
+\textit{Euaspa mikamii} & \textit{Euaspa milionia} & \textit{Euchrysops cnejus} \\
+\textit{Euploea algea} & \textit{Euploea andamanensis} & \textit{Euploea core} \\
+\textit{Euploea doubledayi} & \textit{Euploea klugii} & \textit{Euploea midamus} \\
+\textit{Euploea mulciber} & \textit{Euploea radamanthus} & \textit{Euploea scherzeri} \\
+\textit{Euploea sylvester} & \textit{Eurema andersonii} & \textit{Eurema blanda} \\
+\textit{Eurema brigitta} & \textit{Eurema hecabe} & \textit{Eurema laeta} \\
+\textit{Eurema nilgiriensis} & \textit{Eurema simulatrix} & \textit{Euripus consimilis} \\
+\textit{Euripus nyctelius} & \textit{Euthalia phemius} & \textit{Euthalia sahadeva} \\
+\textit{Euthalia telchinia} & \textit{Everes argiades} & \textit{Flos adriana} \\
+\textit{Flos apidanus} & \textit{Flos areste} & \textit{Flos asoka} \\
+\textit{Flos chinensis} & \textit{Flos diardi} & \textit{Flos fulgida} \\
+\textit{Freyeria putli} & \textit{Freyeria trochylus} & \textit{Fujiokaozephyrus camurius} \\
+\textit{Gandaca harina} & \textit{Gangara lebadea} & \textit{Gangara thyrsis} \\
+\textit{Gegenes nostrodamus} & \textit{Gegenes pumilio} & \textit{Gerosis bhagava} \\
+\textit{Gerosis phisara} & \textit{Gerosis sinica} & \textit{Gomalia elma} \\
+\textit{Gonepteryx amintha} & \textit{Gonepteryx mahaguru} & \textit{Graphium agamemnon} \\
+\textit{Graphium agetes} & \textit{Graphium antiphates} & \textit{Graphium aristeus} \\
+\textit{Graphium chironides} & \textit{Graphium cloanthus} & \textit{Graphium doson} \\
+\textit{Graphium epaminondas} & \textit{Graphium eurous} & \textit{Graphium eurypylus} \\
+\textit{Graphium garhwalica} & \textit{Graphium macareus} & \textit{Graphium megarus} \\
+\textit{Graphium nomius} & \textit{Graphium paphus} & \textit{Graphium sarpedon} \\
+\textit{Graphium teredon} & \textit{Graphium xenocles} & \textit{Halpe aucma} \\
+\textit{Halpe filda} & \textit{Halpe hindu} & \textit{Halpe porus} \\
+\textit{Halpe sikkima} & \textit{Halpe zema} & \textit{Halpemorpha hyrtacus} \\
+\textit{Hasora anura} & \textit{Hasora badra} & \textit{Hasora chromus} \\
+\textit{Hasora khoda} & \textit{Hasora leucospila} & \textit{Hasora schoenherr} \\
+\textit{Hasora taminatus} & \textit{Hasora vitta} & \textit{Hebomoia glaucippe} \\
+\textit{Hebomoia roepstorfii} & \textit{Heliophorus androcles} & \textit{Heliophorus bakeri} \\
+\textit{Heliophorus brahma} & \textit{Heliophorus epicles} & \textit{Heliophorus hybrida} \\
+\textit{Heliophorus indicus} & \textit{Heliophorus kohimensis} & \textit{Heliophorus moorei} \\
+\textit{Heliophorus oda} & \textit{Heliophorus pseudonexus} & \textit{Heliophorus sena} \\
+\textit{Heliophorus tamu} & \textit{Hesperia comma} & \textit{Hipparchia parisatis} \\
+\textit{Horaga onyx} & \textit{Horaga viola} & \textit{Huegelia hugelii} \\
+\textit{Hyarotis adrastus} & \textit{Hyarotis coorga} & \textit{Hyarotis microstictum} \\
+\textit{Hypolycaena erylus} & \textit{Hypolycaena kina} & \textit{Hypolycaena narada} \\
+\textit{Hypolycaena nilgirica} & \textit{Hypolycaena othona} & \textit{Hyponephele brevistigma} \\
+\textit{Hyponephele cheena} & \textit{Hyponephele coenonympha} & \textit{Hyponephele davendra} \\
+\textit{Hyponephele pulchella} & \textit{Hyponephele pulchra} & \textit{Iambrix salsala} \\
+\textit{Idea agamarschana} & \textit{Idea malabarica} & \textit{Ideopsis similis} \\
+\textit{Inomataozephyrus assamica} & \textit{Ionolyce helicon} & \textit{Iraota rochana} \\
+\textit{Iraota timoleon} & \textit{Isma bonota} & \textit{Issoria gemmata} \\
+\textit{Issoria issaea} & \textit{Iton semamora} & \textit{Ixias marianne} \\
+\textit{Ixias pyrene} & \textit{Jamides alecto} & \textit{Jamides bochus} \\
+\textit{Jamides caerulea} & \textit{Jamides celeno} & \textit{Jamides elpis} \\
+\textit{Jamides pura} & \textit{Junonia almana} & \textit{Junonia atlites} \\
+\textit{Junonia hierta} & \textit{Junonia iphita} & \textit{Junonia lemonias} \\
+\textit{Junonia orithya} & \textit{Kallima albofasciata} & \textit{Kaniska canace} \\
+\textit{Karanasa huebneri} & \textit{Kirinia eversmanni} & \textit{Koruthaialos butleri} \\
+\textit{Koruthaialos rubecula} & \textit{Koruthaialos sindu} & \textit{Lachides parrhasius} \\
+\textit{Lacturnea lacturnus} & \textit{Lampides boeticus} & \textit{Lamproptera curius} \\
+\textit{Lamproptera meges} & \textit{Laringa horsfieldii} & \textit{Lasiommata maerula} \\
+\textit{Lasiommata menava} & \textit{Lasiommata schakra} & \textit{Lasippa viraja} \\
+\textit{Lebadea martha} & \textit{Leptosia nina} & \textit{Leptotes plinius} \\
+\textit{Lestranicus transpectus} & \textit{Lethe atkinsonia} & \textit{Lethe baladeva} \\
+\textit{Lethe bhairava} & \textit{Lethe brisanda} & \textit{Lethe chandica} \\
+\textit{Lethe confusa} & \textit{Lethe distans} & \textit{Lethe drypetis} \\
+\textit{Lethe dura} & \textit{Lethe europa} & \textit{Lethe gemina} \\
+\textit{Lethe goalpara} & \textit{Lethe gulnihal} & \textit{Lethe isana} \\
+\textit{Lethe jalaurida} & \textit{Lethe kabrua} & \textit{Lethe kanjupkula} \\
+\textit{Lethe kansa} & \textit{Lethe latiaris} & \textit{Lethe maitrya} \\
+\textit{Lethe margaritae} & \textit{Lethe mekara} & \textit{Lethe naga} \\
+\textit{Lethe nicetas} & \textit{Lethe nicetella} & \textit{Lethe ramadeva} \\
+\textit{Lethe rohria} & \textit{Lethe scanda} & \textit{Lethe serbonis} \\
+\textit{Lethe siderea} & \textit{Lethe sidonis} & \textit{Lethe sinorix} \\
+\textit{Lethe sura} & \textit{Lethe tamuna} & \textit{Lethe tristigmata} \\
+\textit{Lethe verma} & \textit{Lethe vindhya} & \textit{Lethe visrava} \\
+\textit{Libythea laius} & \textit{Libythea lepita} & \textit{Libythea myrrha} \\
+\textit{Limenitis ligyes} & \textit{Limenitis rileyi} & \textit{Limenitis trivena} \\
+\textit{Liphyra brassolis} & \textit{Lobocla liliana} & \textit{Logania distanti} \\
+\textit{Losaria coon} & \textit{Losaria rhodifer} & \textit{Lotongus sarala} \\
+\textit{Loxura atymnus} & \textit{Luthrodes pandava} & \textit{Lycaena aditya} \\
+\textit{Lycaena kasyapa} & \textit{Lycaena panava} & \textit{Lycaena phlaeas} \\
+\textit{Mahathala ameria} & \textit{Maneca bhotea} & \textit{Matapa aria} \\
+\textit{Matapa cresta} & \textit{Matapa druna} & \textit{Matapa purpurascens} \\
+\textit{Matapa sasivarna} & \textit{Meandrusa lachinus} & \textit{Meandrusa payeni} \\
+\textit{Megisba malaya} & \textit{Melanitis leda} & \textit{Miletus chinensis} \\
+\textit{Mimathyma chevana} & \textit{Mimathyma chitralensis} & \textit{Moduza procris} \\
+\textit{Monodontides musina} & \textit{Mooreana trichoneura} & \textit{Mota massyla} \\
+\textit{Mycalesis adamsonii} & \textit{Mycalesis anaxias} & \textit{Mycalesis francisca} \\
+\textit{Mycalesis gotama} & \textit{Mycalesis igilia} & \textit{Mycalesis intermedia} \\
+\textit{Mycalesis junonia} & \textit{Mycalesis manii} & \textit{Mycalesis mineus} \\
+\textit{Mycalesis orcha} & \textit{Mycalesis perseus} & \textit{Mycalesis radza} \\
+\textit{Mycalesis suaveolens} & \textit{Mycalesis subdita} & \textit{Mycalesis visala} \\
+\textit{Nacaduba beroe} & \textit{Nacaduba calauria} & \textit{Nacaduba hermus} \\
+\textit{Nacaduba kurava} & \textit{Nacaduba pactolus} & \textit{Nacaduba pavana} \\
+\textit{Nacaduba sinhala} & \textit{Neocheritra fabronia} & \textit{Neope armandii} \\
+\textit{Neope bhadra} & \textit{Neope pulaha} & \textit{Neope pulahina} \\
+\textit{Neope pulahoides} & \textit{Neope yama} & \textit{Neopithecops zalmora} \\
+\textit{Neorina hilda} & \textit{Neorina patria} & \textit{Neptis ananta} \\
+\textit{Neptis cartica} & \textit{Neptis clinia} & \textit{Neptis harita} \\
+\textit{Neptis hylas} & \textit{Neptis melba} & \textit{Neptis nata} \\
+\textit{Neptis nycteus} & \textit{Neptis pseudovikasi} & \textit{Neptis radha} \\
+\textit{Neptis sankara} & \textit{Neptis sappho} & \textit{Niphanda cymbia} \\
+\textit{Notocrypta curvifascia} & \textit{Notocrypta feisthamelii} & \textit{Notocrypta paralysos} \\
+\textit{Ochlodes brahma} & \textit{Ochlodes siva} & \textit{Odina decoratus} \\
+\textit{Odontoptilum angulata} & \textit{Oreolyce vardhana} & \textit{Oriens concinna} \\
+\textit{Oriens gola} & \textit{Oriens goloides} & \textit{Orinoma damaris} \\
+\textit{Orsotriaena medus} & \textit{Orthomiella pontis} & \textit{Pachliopta aristolochiae} \\
+\textit{Pachliopta hector} & \textit{Pachliopta pandiyana} & \textit{Papilio agenor} \\
+\textit{Papilio agestor} & \textit{Papilio alcmenor} & \textit{Papilio arcturus} \\
+\textit{Papilio bianor} & \textit{Papilio bootes} & \textit{Papilio buddha} \\
+\textit{Papilio castor} & \textit{Papilio chaon} & \textit{Papilio clytia} \\
+\textit{Papilio crino} & \textit{Papilio daksha} & \textit{Papilio demoleus} \\
+\textit{Papilio dravidarum} & \textit{Papilio elephenor} & \textit{Papilio epycides} \\
+\textit{Papilio helenus} & \textit{Papilio krishna} & \textit{Papilio liomedon} \\
+\textit{Papilio machaon} & \textit{Papilio mayo} & \textit{Papilio memnon} \\
+\textit{Papilio noblei} & \textit{Papilio palinurus} & \textit{Papilio paradoxa} \\
+\textit{Papilio paris} & \textit{Papilio polyctor} & \textit{Papilio polymnestor} \\
+\textit{Papilio polytes} & \textit{Papilio prexaspes} & \textit{Papilio protenor} \\
+\textit{Papilio slateri} & \textit{Papilio xuthus} & \textit{Paralasa kalinda} \\
+\textit{Paralasa mani} & \textit{Paralasa shallada} & \textit{Parantica aglea} \\
+\textit{Parantica melaneus} & \textit{Parantica nilgiriensis} & \textit{Parantica pedonga} \\
+\textit{Parantica sita} & \textit{Parasarpa dudu} & \textit{Pareronia avatar} \\
+\textit{Pareronia ceylanica} & \textit{Pareronia hippia} & \textit{Parnara guttatus} \\
+\textit{Parnassius charltonius} & \textit{Parnassius epaphus} & \textit{Parnassius hardwickii} \\
+\textit{Parnassius stoliczkanus} & \textit{Paroeneis pumilus} & \textit{Parthenos sylvia} \\
+\textit{Pedesta masuriensis} & \textit{Pedesta panda} & \textit{Pedesta pandita} \\
+\textit{Pelopidas agna} & \textit{Pelopidas assamensis} & \textit{Pelopidas conjuncta} \\
+\textit{Pelopidas mathias} & \textit{Pelopidas sinensis} & \textit{Pelopidas subochracea} \\
+\textit{Penthema lisarda} & \textit{Petrelaea dana} & \textit{Phalanta alcippe} \\
+\textit{Phalanta phalantha} & \textit{Phengaris atroguttata} & \textit{Pieris brassicae} \\
+\textit{Pieris canidia} & \textit{Pieris deota} & \textit{Pieris extensa} \\
+\textit{Pieris rapae} & \textit{Pirdana major} & \textit{Pithauria marsena} \\
+\textit{Pithauria murdava} & \textit{Pithauria stramineipennis} & \textit{Pithecops corvus} \\
+\textit{Pithecops fulgens} & \textit{Plastingia naga} & \textit{Plebejus devanica} \\
+\textit{Plebejus samudra} & \textit{Polygonia c album} & \textit{Polyommatus ariana} \\
+\textit{Polyommatus dux} & \textit{Polyommatus janetae} & \textit{Polyommatus nepalensis} \\
+\textit{Polyommatus pseuderos} & \textit{Polyommatus stoliczkana} & \textit{Polytremis discreta} \\
+\textit{Polytremis eltola} & \textit{Polytremis lubricans} & \textit{Pontia callidice} \\
+\textit{Pontia chloridice} & \textit{Pontia daplidice} & \textit{Poritia erycinoides} \\
+\textit{Poritia hewitsoni} & \textit{Potanthus lydia} & \textit{Potanthus pava} \\
+\textit{Potanthus trachala} & \textit{Pratapa deva} & \textit{Pratapa icetas} \\
+\textit{Prioneris philonome} & \textit{Prioneris sita} & \textit{Prioneris thestylis} \\
+\textit{Prosotas aluta} & \textit{Prosotas bhutea} & \textit{Prosotas dubiosa} \\
+\textit{Prosotas lutea} & \textit{Prosotas nora} & \textit{Prosotas noreia} \\
+\textit{Prosotas pia} & \textit{Prothoe franck} & \textit{Pseudergolis wedah} \\
+\textit{Pseudochazara lehana} & \textit{Pseudocoladenia dan} & \textit{Pseudocoladenia fabia} \\
+\textit{Pseudocoladenia fatih} & \textit{Pseudocoladenia fatua} & \textit{Pseudocoladenia festa} \\
+\textit{Pseudophilotes vicrama} & \textit{Pseudozizeeria maha} & \textit{Psolos fuligo} \\
+\textit{Pudicitia pholus} & \textit{Pyroneura margherita} & \textit{Quedara basiflava} \\
+\textit{Rachana jalindra} & \textit{Ragadia crisilda} & \textit{Ragadia crito} \\
+\textit{Rapala damona} & \textit{Rapala dieneces} & \textit{Rapala iarbus} \\
+\textit{Rapala lankana} & \textit{Rapala manea} & \textit{Rapala melida} \\
+\textit{Rapala nissa} & \textit{Rapala pheretima} & \textit{Rapala rectivitta} \\
+\textit{Rapala refulgens} & \textit{Rapala rosacea} & \textit{Rapala selira} \\
+\textit{Rapala suffusa} & \textit{Rapala tara} & \textit{Rapala varuna} \\
+\textit{Rathinda amor} & \textit{Remelana jangala} & \textit{Rhaphicera moorei} \\
+\textit{Rhaphicera satricus} & \textit{Rhinopalpa polynice} & \textit{Rohana parisatis} \\
+\textit{Rohana parvata} & \textit{Rohana tonkiniana} & \textit{Salanoemia noemi} \\
+\textit{Salanoemia sala} & \textit{Salanoemia tavoyana} & \textit{Saletara liberia} \\
+\textit{Sarangesa dasahara} & \textit{Sarangesa purendra} & \textit{Satarupa gopala} \\
+\textit{Satarupa splendens} & \textit{Satarupa zulla} & \textit{Scobura cephala} \\
+\textit{Scobura cephaloides} & \textit{Scobura isota} & \textit{Scobura parawoolletti} \\
+\textit{Scobura phiditia} & \textit{Sebastonyma dolopia} & \textit{Sephisa chandra} \\
+\textit{Seseria dohertyi} & \textit{Seseria sambara} & \textit{Shijimia moorei} \\
+\textit{Shirozuozephyrus bhutanensis} & \textit{Shirozuozephyrus kirbariensis} & \textit{Shizuyaozephyrus ziha} \\
+\textit{Simiskina phalena} & \textit{Sinthusa chandrana} & \textit{Sinthusa nasaka} \\
+\textit{Sinthusa virgo} & \textit{Sovia separata} & \textit{Spalgis epius} \\
+\textit{Spialia doris} & \textit{Spialia galba} & \textit{Stibochiona nicea} \\
+\textit{Stiboges nymphidia} & \textit{Stichophthalma camadeva} & \textit{Stichophthalma nurinissa} \\
+\textit{Stichophthalma sparta} & \textit{Suada swerga} & \textit{Suasa lisides} \\
+\textit{Suastus gremius} & \textit{Suastus minuta} & \textit{Sumalia zulema} \\
+\textit{Superflua deria} & \textit{Superflua sassanides} & \textit{Surendra quercetorum} \\
+\textit{Symbrenthia brabira} & \textit{Symbrenthia hypselis} & \textit{Symbrenthia lilaea} \\
+\textit{Symbrenthia niphanda} & \textit{Symbrenthia silana} & \textit{Symphaedra nais} \\
+\textit{Tagiades cohaerens} & \textit{Tagiades gana} & \textit{Tagiades japetus} \\
+\textit{Tagiades litigiosa} & \textit{Tagiades menaka} & \textit{Tagiades parra} \\
+\textit{Tajuria cippus} & \textit{Tajuria diaeus} & \textit{Tajuria illurgioides} \\
+\textit{Tajuria ister} & \textit{Tajuria jehana} & \textit{Tajuria luculentus} \\
+\textit{Tajuria maculatus} & \textit{Tajuria melastigma} & \textit{Tajuria yajna} \\
+\textit{Talbotia naganum} & \textit{Talicada nyseus} & \textit{Tanaecia cibaritis} \\
+\textit{Tanaecia cocytus} & \textit{Tapena thwaitesi} & \textit{Taractrocera ceramas} \\
+\textit{Taractrocera danna} & \textit{Taractrocera maevius} & \textit{Taraka hamada} \\
+\textit{Tarucus ananda} & \textit{Tarucus balkanica} & \textit{Tarucus callinara} \\
+\textit{Tarucus hazara} & \textit{Tarucus indica} & \textit{Tarucus nara} \\
+\textit{Tarucus venosus} & \textit{Tarucus waterstradti} & \textit{Taxila haquinus} \\
+\textit{Teinopalpus imperialis} & \textit{Telicota bambusae} & \textit{Telicota colon} \\
+\textit{Telinga adolphei} & \textit{Telinga davisoni} & \textit{Telinga heri} \\
+\textit{Telinga lepcha} & \textit{Telinga malsara} & \textit{Telinga malsarida} \\
+\textit{Telinga mestra} & \textit{Telinga misenus} & \textit{Telinga nicotia} \\
+\textit{Telinga oculus} & \textit{Thaduka multicaudata} & \textit{Thaumantis diores} \\
+\textit{Thermozephyrus ataxus} & \textit{Thoressa astigmata} & \textit{Thoressa cerata} \\
+\textit{Thoressa evershedi} & \textit{Thoressa honorei} & \textit{Thoressa hyrie} \\
+\textit{Thoressa sitala} & \textit{Ticherra acte} & \textit{Tirumala limniace} \\
+\textit{Tirumala septentrionis} & \textit{Tongeia kala} & \textit{Tongeia pseudozuthus} \\
+\textit{Troides aeacus} & \textit{Troides helena} & \textit{Troides minos} \\
+\textit{Udara akasa} & \textit{Udara albocaeruleus} & \textit{Udara dilectus} \\
+\textit{Udaspes folus} & \textit{Una usta} & \textit{Unkana ambasa} \\
+\textit{Vagrans egista} & \textit{Vanessa cardui} & \textit{Vanessa indica} \\
+\textit{Vindula erota} & \textit{Virachola isocrates} & \textit{Virachola perse} \\
+\textit{Yasoda tripunctata} & \textit{Ypthima affectata} & \textit{Ypthima asterope} \\
+\textit{Ypthima avanta} & \textit{Ypthima baldus} & \textit{Ypthima burmana} \\
+\textit{Ypthima cantliei} & \textit{Ypthima ceylonica} & \textit{Ypthima chenu} \\
+\textit{Ypthima fusca} & \textit{Ypthima hannyngtoni} & \textit{Ypthima huebneri} \\
+\textit{Ypthima indecora} & \textit{Ypthima inica} & \textit{Ypthima kasmira} \\
+\textit{Ypthima methora} & \textit{Ypthima nareda} & \textit{Ypthima newara} \\
+\textit{Ypthima nikaea} & \textit{Ypthima parasakra} & \textit{Ypthima sakra} \\
+\textit{Ypthima singala} & \textit{Ypthima striata} & \textit{Ypthima tabella} \\
+\textit{Ypthima ypthimoides} & \textit{Zeltus amasa} & \textit{Zemeros flegyas} \\
+\textit{Zesius chrysomallus} & \textit{Zinaspa todara} & \textit{Zipaetis saitis} \\
+\textit{Zipaetis scylax} & \textit{Zizeeria karsandra} & \textit{Zizina otis} \\
+\textit{Zizula hylax} & \textit{Zographetus dzonguensis} & \textit{Zographetus ogygia} \\
+\textit{Zographetus satwa} & \textit{Abelmoschus esculentus} & \textit{Abrus precatorius} \\
+\textit{Abutilon indicum} & \textit{Abutilon persicum} & \textit{Acacia auriculiformis} \\
+\textit{Acanthus ilicifolius} & \textit{Achyranthes aspera} & \textit{Albizia procera} \\
+\textit{Allophylus cobbe} & \textit{Alysicarpus longifolius} & \textit{Alysicarpus vaginalis} \\
+\textit{Andrographis paniculata} & \textit{Andrographis serpyllifolia} & \textit{Areca catechu} \\
+\textit{Arenga wightii} & \textit{Arundo donax} & \textit{Asystasia dalzelliana} \\
+\textit{Asystasia gangetica} & \textit{Bambusa bambos} & \textit{Bambusa vulgaris} \\
+\textit{Bambusa wamin} & \textit{Barleria cristata} & \textit{Barleria cuspidata} \\
+\textit{Barleria prionitis} & \textit{Barleria terminalis} & \textit{Berberis sp} \\
+\textit{Bixa orellana} & \textit{Boerhavia diffusa} & \textit{Bombax ceiba} \\
+\textit{Borassus flabellifer} & \textit{Bougainvillea glabra} & \textit{Bougainvillea spectabilis} \\
+\textit{Brachiaria mutica} & \textit{Calamus sp} & \textit{Chionanthus mala elengi} \\
+\textit{Coldenia procumbens} & \textit{Cosmos sulphureus} & \textit{Cyathocline purpurea} \\
+\textit{Cynarospermum asperrimum} & \textit{Derris canarensis} & \textit{Dicliptera paniculata} \\
+\textit{Echinops echinatus} & \textit{Eranthemum roseum} & \textit{Erigeron emodi} \\
+\textit{Ficus hispida} & \textit{Ficus microcarpa} & \textit{Ficus pumila} \\
+\textit{Ficus racemosa} & \textit{Ficus religiosa} & \textit{Ficus tinctoria} \\
+\textit{Gomphocarpus physocarpus} & \textit{Graptophyllum pictum} & \textit{Gymnema sylvestre} \\
+\textit{Hemidesmus indicus} & \textit{Hiptage benghalensis} & \textit{Hydnocarpus pentandrus} \\
+\textit{Hygrophila auriculata} & \textit{Hygrophila ringens} & \textit{Impatiens balsamina} \\
+\textit{Impatiens minor} & \textit{Isodon coetsa} & \textit{Justicia neesii} \\
+\textit{Justicia procumbens} & \textit{Lagascea mollis} & \textit{Lepidagathis cuspidata} \\
+\textit{Lepidagathis keralensis} & \textit{Libidibia coriaria} & \textit{Lotus corniculatus} \\
+\textit{Macroptilium lathyroides} & \textit{Magnolia champaca} & \textit{Magnolia grandiflora} \\
+\textit{Malus pumila} & \textit{Mezoneuron cucullatum} & \textit{Millettia pachycarpa} \\
+\textit{Mimosa hamata} & \textit{Mimosa pudica} & \textit{Morus indica} \\
+\textit{Nicoteba betonica} & \textit{Odontonema tubaeforme} & \textit{Olax imbricata} \\
+\textit{Phaulopsis dorsiflora} & \textit{Phyllocephalum scabridum} & \textit{Plumbago zeylanica} \\
+\textit{Prinsepia utilis} & \textit{Prunus persica} & \textit{Prunus sp1} \\
+\textit{Pyrus communis} & \textit{Ruellia prostrata} & \textit{Ruellia simplex} \\
+\textit{Ruellia tuberosa} & \textit{Schefflera sp} & \textit{Schefflera venulosa} \\
+\textit{Senecio bombayensis} & \textit{Sorghum bicolor} & \textit{Sphagneticola trilobata} \\
+\textit{Strobilanthes callosa} & \textit{Strobilanthes ciliata} & \textit{Strobilanthes integrifolia} \\
+\textit{Strobilanthes ixiocephala} & \textit{Strobilanthes lanata} & \textit{Strobilanthes lupulina} \\
+\textit{Strobilanthes wightiana} & \textit{Syzygium caryophyllatum} & \textit{Syzygium cumini} \\
+\textit{Tagetes erecta} & \textit{Thottea sivarajanii} & \textit{Thunbergia alata} \\
+\textit{Thunbergia grandiflora} & \textit{Tithonia diversifolia} & \textit{Tithonia rotundifolia} \\
+\textit{Tragia involucrata} & \textit{Tragia plukenetti} & \textit{Tragia praetervisa} \\
+\textit{Tricholepis glaberrima} & \textit{Tridax procumbens} & \textit{Trifolium repens} \\
+\textit{Trigonella emodi} & \textit{Vachellia farnesiana} & \textit{Vachellia leucophloea} \\
+\textit{Vachellia nilotica} & \textit{Vigna radiata} & \textit{Vigna unguiculata} \\
+\textit{Wrightia tinctoria} & \textit{Zinnia peruviana} & \textit{Ziziphus rugosa} \\
+\textit{Ziziphus xylopyrus} &  &  \\
+
+\end{longtable}
+
+\end{document}
